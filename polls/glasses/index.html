@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Which glasses suit me best? · Studio Hibari</title>
+  <link rel="icon" type="image/png" href="/images/logo/sh_studiohibari_logo_small_stroke.png" />
+  <meta name="robots" content="noindex" />
+  <meta name="description" content="Five frames, one face. Flip through the options and help me decide which pair I should get." />
+
+  <!-- Link previews (WhatsApp, Slack, iMessage …) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Studio Hibari" />
+  <meta property="og:url" content="https://www.hibari.studio/polls/glasses" />
+  <meta property="og:title" content="Which glasses suit me best?" />
+  <meta property="og:description" content="Five frames, one face. Help me decide which pair I should get." />
+  <meta property="og:image" content="https://www.hibari.studio/images/polls/glasses/glasses1/photo_5352732336040126861_y.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    // Apply stored theme before paint to avoid a flash
+    try {
+      if (localStorage.getItem('theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) {}
+  </script>
+
+  <link rel="stylesheet" href="/polls/polls.css" />
+</head>
+<body data-poll="glasses">
+  <header class="container topbar">
+    <a href="/" class="topbar__logo" aria-label="Studio Hibari home">
+      <img src="/images/logo/sh_studiohibari_logo_small.png" alt="" />
+      Studio Hibari
+    </a>
+    <div class="nav__actions">
+      <button class="nav__lang-toggle" id="langToggle" aria-label="Switch language">DE</button>
+      <button class="nav__theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+        <!-- moon = dark mode is active -->
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M13.5 10.5A6 6 0 0 1 5.5 2.5a6 6 0 1 0 8 8Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <!-- sun = light mode is active -->
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="poll-page">
+    <div class="container">
+      <a href="/polls" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M12 7H2M6 3L2 7l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="back">All polls</span>
+      </a>
+
+      <div class="poll">
+        <div class="poll__media reveal">
+          <div class="viewer" id="imageViewer">
+            <div class="viewer__track" id="imageTrack"></div>
+            <button class="viewer__nav viewer__nav--prev" id="imgPrev" aria-label="Previous image">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11 14L6 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="viewer__nav viewer__nav--next" id="imgNext" aria-label="Next image">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="viewer__dots" id="imgDots"></div>
+          </div>
+        </div>
+
+        <div class="poll__body reveal reveal-delay-1">
+          <div class="tags" id="pollTags"></div>
+          <h1 class="poll__title" id="pollTitle">Which glasses suit me best?</h1>
+          <p class="poll__desc" id="pollDesc"></p>
+
+          <p class="section-heading" data-i18n="options">The options</p>
+          <div class="poll-options" id="pollOptions"></div>
+          <div class="poll-vote">
+            <button class="poll-vote__btn" id="voteBtn"></button>
+            <span class="poll-vote__status" id="voteStatus" aria-live="polite"></span>
+          </div>
+
+          <button class="poll-share" id="shareBtn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 9v4h10V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="shareLabel" data-i18n="share">Share this poll</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">© 2026 · hibari.studio</footer>
+
+  <!-- ===== LIGHTBOX ===== -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox__backdrop" id="lightboxBackdrop"></div>
+    <button class="lightbox__close" id="lightboxClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="lightbox__viewer">
+      <button class="lightbox__btn lightbox__btn--prev" id="lightboxPrev" aria-label="Previous">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M13 16L7 10l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="lightbox__img-wrap" id="lightboxImgWrap">
+        <img id="lightboxImg" alt="" />
+      </div>
+      <button class="lightbox__btn lightbox__btn--next" id="lightboxNext" aria-label="Next">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="lightbox__counter" id="lightboxCounter"></div>
+  </div>
+
+  <script src="/polls/polls.js"></script>
+</body>
+</html>
