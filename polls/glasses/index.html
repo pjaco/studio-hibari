@@ -74,18 +74,21 @@
           </div>
         </div>
 
-        <div class="poll__body reveal reveal-delay-1">
-          <div class="tags" id="pollTags"></div>
+        <div class="poll__intro reveal reveal-delay-1">
           <h1 class="poll__title" id="pollTitle">Which glasses suit me best?</h1>
           <p class="poll__desc" id="pollDesc"></p>
+        </div>
 
+        <div class="poll__choose reveal reveal-delay-1">
           <p class="section-heading" data-i18n="options">The options</p>
           <div class="poll-options" id="pollOptions"></div>
           <div class="poll-vote">
             <button class="poll-vote__btn" id="voteBtn"></button>
             <span class="poll-vote__status" id="voteStatus" aria-live="polite"></span>
           </div>
+        </div>
 
+        <div class="poll__share reveal reveal-delay-2">
           <button class="poll-share" id="shareBtn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -98,7 +101,18 @@
     </div>
   </main>
 
-  <footer class="footer">© 2026 · hibari.studio</footer>
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer__text">
+        © 2026 · built with <span>claude code</span> · hibari.studio
+      </p>
+      <div class="footer__logo">
+        <img class="logo-dark"  src="/images/logo/studiohibari_logo_small_white.png" alt="Studio Hibari" />
+        <img class="logo-light" src="/images/logo/studiohibari_logo_small_black.png" alt="Studio Hibari" />
+      </div>
+    </div>
+  </footer>
 
   <!-- ===== LIGHTBOX ===== -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
