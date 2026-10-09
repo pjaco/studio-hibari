@@ -102,16 +102,6 @@ const poll = pollData[pollId];
 // The poll's own name for its options ("Brille"), falling back to "Option"
 const optionName = () => str(poll.optionName || ui.option);
 
-/* ── Swipe helper ── */
-function addSwipe(el, onLeft, onRight) {
-  let sx = 0;
-  el.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
-  el.addEventListener('touchend',   e => {
-    const dx = e.changedTouches[0].clientX - sx;
-    if (Math.abs(dx) > 44) { dx < 0 ? onLeft() : onRight(); }
-  }, { passive: true });
-}
-
 /* ── Image viewer — all options' images in one track ── */
 const imgTrack  = document.getElementById('imageTrack');
 const imgDotsEl = document.getElementById('imgDots');
@@ -152,7 +142,8 @@ function imgStep(dir) {
 let lastSwipeEnd = 0;   // a tap right after a swipe isn't a tap
 const justSwiped = () => performance.now() - lastSwipeEnd < 400;
 
-function addDrag(viewer) {
+// opts: { track, index(), count(), goTo(i) }
+function addDrag(viewer, { track, index, count, goTo }) {
   let x0 = null, y0 = 0, t0 = 0, dx = 0, axis = null, width = 0;
 
   viewer.addEventListener('touchstart', e => {
@@ -174,7 +165,7 @@ function addDrag(viewer) {
     if (!axis) {
       if (Math.abs(mx) < 6 && Math.abs(my) < 6) return;
       axis = Math.abs(mx) >= Math.abs(my) * 0.7 ? 'x' : 'y';
-      if (axis === 'x') imgTrack.style.transition = 'none';
+      if (axis === 'x') track.style.transition = 'none';
     }
     if (axis !== 'x') return;
 
@@ -182,21 +173,22 @@ function addDrag(viewer) {
     e.preventDefault();
     dx = mx;
     // Rubber band at the first / last photo
-    const atEdge = (imgIdx === 0 && dx > 0) || (imgIdx === slides.length - 1 && dx < 0);
+    const i      = index();
+    const atEdge = (i === 0 && dx > 0) || (i === count() - 1 && dx < 0);
     const shown  = atEdge ? dx * 0.3 : dx;
-    imgTrack.style.transform = `translateX(${-imgIdx * width + shown}px)`;
+    track.style.transform = `translateX(${-i * width + shown}px)`;
   }, { passive: false });
 
   const end = () => {
     if (axis === 'x') {
       lastSwipeEnd = performance.now();
-      imgTrack.style.transition = '';
+      track.style.transition = '';
       const fast = Math.abs(dx) / (performance.now() - t0) > 0.4 && Math.abs(dx) > 20;
       const far  = Math.abs(dx) > width * 0.2;
-      let target = imgIdx;
-      if (fast || far) target = imgIdx + (dx < 0 ? 1 : -1);
+      let target = index();
+      if (fast || far) target += dx < 0 ? 1 : -1;
       // No wrap-around while dragging — snap back at the ends
-      imgGoTo(Math.max(0, Math.min(slides.length - 1, target)));
+      goTo(Math.max(0, Math.min(count() - 1, target)));
     }
     x0 = null;
     axis = null;
@@ -349,8 +341,8 @@ async function loadVote() {
 
 /* ── Lightbox ── */
 const lightbox        = document.getElementById('lightbox');
-const lightboxImg     = document.getElementById('lightboxImg');
-const lightboxImgWrap = document.getElementById('lightboxImgWrap');
+const lightboxStage   = document.getElementById('lightboxStage');
+const lightboxTrack   = document.getElementById('lightboxTrack');
 const lightboxCounter = document.getElementById('lightboxCounter');
 const lightboxPrev    = document.getElementById('lightboxPrev');
 const lightboxNext    = document.getElementById('lightboxNext');
@@ -366,22 +358,25 @@ function lbUpdateCounter() {
     : `${optionName()} ${s.option + 1}`;
 }
 
-function lbGoTo(idx) {
+// All photos side by side, like the viewer, so swipes can follow the finger
+function lbGoTo(idx, skipAnim) {
   lbIdx = ((idx % slides.length) + slides.length) % slides.length;
-  lightboxImgWrap.classList.add('is-transitioning');
-  setTimeout(() => {
-    lightboxImg.src = slides[lbIdx].src;
-    lightboxImgWrap.classList.remove('is-transitioning');
-    lbUpdateCounter();
-  }, 220);
+  if (skipAnim) {
+    lightboxTrack.style.transition = 'none';
+    lightboxTrack.style.transform  = `translateX(-${lbIdx * 100}%)`;
+    requestAnimationFrame(() => { lightboxTrack.style.transition = ''; });
+  } else {
+    lightboxTrack.style.transform = `translateX(-${lbIdx * 100}%)`;
+  }
+  lbUpdateCounter();
   // Keep the viewer (and selected option) behind in sync
   imgGoTo(lbIdx, true);
 }
 
 function openLightbox(startIdx) {
-  lbIdx = startIdx;
-  lightboxImg.src = slides[lbIdx].src;
-  lbUpdateCounter();
+  lightboxTrack.innerHTML = slides.map(s => `
+    <div class="lightbox__slide"><img src="${s.src}" alt="${optionName()} ${s.option + 1}" /></div>`).join('');
+  lbGoTo(startIdx, true);
   lightbox.classList.add('is-open');
   lightbox.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
@@ -396,7 +391,9 @@ function closeLightbox() {
 if (pageType === 'poll') {
   imgPrev.addEventListener('click', () => imgStep(-1));
   imgNext.addEventListener('click', () => imgStep(1));
-  addDrag(document.getElementById('imageViewer'));
+  addDrag(document.getElementById('imageViewer'), {
+    track: imgTrack, index: () => imgIdx, count: () => slides.length, goTo: i => imgGoTo(i),
+  });
 
   voteBtn.addEventListener('click', async () => {
     const option = slides[imgIdx].option;
@@ -436,7 +433,13 @@ if (pageType === 'poll') {
   lightboxNext.addEventListener('click', () => lbGoTo(lbIdx + 1));
   document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
   document.getElementById('lightboxBackdrop').addEventListener('click', closeLightbox);
-  addSwipe(lightbox, () => lbGoTo(lbIdx + 1), () => lbGoTo(lbIdx - 1));
+  addDrag(lightboxStage, {
+    track: lightboxTrack, index: () => lbIdx, count: () => slides.length, goTo: i => lbGoTo(i),
+  });
+  // Tapping the dark area around a photo closes, like the backdrop
+  lightboxStage.addEventListener('click', e => {
+    if (!e.target.closest('img') && !justSwiped()) closeLightbox();
+  });
 
   document.addEventListener('keydown', e => {
     if (lightbox.classList.contains('is-open')) {
