@@ -32,11 +32,23 @@
       --font-heading: 'Lato', sans-serif;
       --font-body: 'DM Sans', sans-serif;
 
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
       --radius-pill: 999px;
 
+      --space-xs: 0.5rem;
       --space-sm: 1rem;
       --space-md: 1.5rem;
       --space-lg: 2.5rem;
+      --space-xl: 4rem;
+      --space-xxl: 7rem;
+
+      --max-width: 1200px;
+
+      --transition-base: 0.25s ease;
+      --transition-slow: 0.45s ease;
     }
 
     /* ===== LIGHT MODE ===== */
@@ -56,19 +68,19 @@
       padding: 0;
     }
 
+    html {
+      font-size: 16px;
+    }
+
     body {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-md);
-      padding: var(--space-lg) var(--space-md);
       background-color: var(--bg);
       color: var(--text-primary);
       font-family: var(--font-body);
       line-height: 1.6;
-      text-align: center;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -82,14 +94,93 @@
       text-decoration: none;
     }
 
-    /* ===== PLACEHOLDER ===== */
-    .polls__logo {
-      width: 56px;
+    button {
+      cursor: pointer;
+      font-family: var(--font-body);
+      border: none;
+      background: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 var(--space-md);
+    }
+
+    /* ===== ENTRANCE ANIMATION ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity var(--transition-slow), transform var(--transition-slow);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+
+    /* ===== TOP BAR ===== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      padding-block: var(--space-md);
+    }
+
+    .topbar__logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-heading);
+      font-weight: 900;
+      font-size: 1rem;
+    }
+
+    .topbar__logo img {
+      width: 32px;
       height: auto;
     }
 
-    [data-theme="light"] .polls__logo {
+    [data-theme="light"] .topbar__logo img {
       content: url("/images/logo/sh_studiohibari_logo_small_black.png");
+    }
+
+    .topbar__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      background: var(--surface);
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: border-color var(--transition-base), color var(--transition-base);
+    }
+
+    .topbar__back:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ===== POLLS SECTION ===== */
+    .polls {
+      flex: 1;
+      padding: var(--space-xl) 0 var(--space-xxl);
+    }
+
+    .polls__header {
+      margin-bottom: var(--space-xl);
     }
 
     .polls__title {
@@ -97,52 +188,1045 @@
       font-weight: 900;
       font-size: clamp(2.5rem, 8vw, 4.5rem);
       line-height: 1.05;
+      letter-spacing: -0.02em;
     }
 
     .polls__title span {
       color: var(--accent);
     }
 
-    .polls__text {
+    .polls__sub {
+      font-size: 1rem;
       color: var(--text-muted);
-      max-width: 32rem;
+      line-height: 1.7;
+      margin-top: var(--space-sm);
+      max-width: 480px;
     }
 
-    .polls__back {
+    .polls__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    /* Poll Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: scale(1.018);
+      border-color: rgba(245, 200, 66, 0.4);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .card__thumbnail {
+      width: 100%;
+      height: 240px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Strip of option previews */
+    .card__strip {
+      display: flex;
+      height: 100%;
+      gap: 2px;
+      background: var(--border);
+    }
+
+    .card__strip img {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 35%;
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover .card__strip img {
+      transform: scale(1.04);
+    }
+
+    .card__body {
+      padding: var(--space-md);
+    }
+
+    .card__title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .card__desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+      line-height: 1.6;
+    }
+
+    .card__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .card__tag {
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: 1.5px solid rgba(245, 200, 66, 0.4);
+      color: var(--accent);
+      transition: border-color var(--transition-base), background var(--transition-base);
+    }
+
+    .card:hover .card__tag {
+      border-color: var(--accent);
+    }
+
+    .card__cta {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      background: var(--surface);
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: border-color 0.25s ease, color 0.25s ease;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      padding-top: var(--space-sm);
+      transition: gap var(--transition-base);
     }
 
-    .polls__back:hover {
+    .card:hover .card__cta { gap: 13px; }
+
+    /* ============================= */
+    /* ===== POLL MODAL ===== */
+    /* ============================= */
+
+    .project-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.28s ease;
+    }
+
+    .project-modal.is-open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .project-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .project-modal__panel {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 880px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      transform: scale(0.94) translateY(20px);
+      transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .project-modal.is-open .project-modal__panel {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Poll prev / next — fixed to screen edges */
+    .project-modal__project-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%) scale(0.85);
+      z-index: 2002;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, background 0.2s ease,
+                  transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .project-modal.is-open .project-modal__project-nav {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .project-modal__project-nav:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .project-modal__project-nav[hidden] { display: none; }
+
+    .project-modal__project-nav--prev { left: 16px; }
+    .project-modal__project-nav--next { right: 16px; }
+
+    @media (max-width: 600px) {
+      .project-modal__project-nav { width: 38px; height: 38px; }
+      .project-modal__project-nav--prev { left: 6px; }
+      .project-modal__project-nav--next { right: 6px; }
+    }
+
+    .project-modal__close {
+      position: sticky;
+      top: var(--space-md);
+      float: right;
+      margin: var(--space-md) var(--space-md) calc(-36px - var(--space-md)) 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      flex-shrink: 0;
+      transition: color var(--transition-base), border-color var(--transition-base);
+    }
+
+    .project-modal__close:hover {
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    /* ── Image Viewer ── */
+    .screenshot-viewer {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    .screenshot-viewer__track {
+      display: flex;
+      transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+
+    .screenshot-viewer__slide {
+      flex-shrink: 0;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      cursor: zoom-in;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screenshot-viewer__slide img {
+      width: 100%;
+      height: 70vh;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.45s ease, filter 0.3s ease;
+    }
+
+    .screenshot-viewer__slide:hover img {
+      transform: scale(1.02);
+      filter: brightness(1.06);
+    }
+
+    .screenshot-viewer__slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      transition: background 0.3s ease;
+      pointer-events: none;
+    }
+
+    .screenshot-viewer__slide:hover::after {
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .screenshot-viewer__zoom {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      opacity: 0;
+      color: #fff;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .screenshot-viewer__slide:hover .screenshot-viewer__zoom {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Option badge on each slide */
+    .screenshot-viewer__badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 2;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: rgba(10, 10, 10, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    /* Prev / Next buttons */
+    .screenshot-viewer__nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(10, 10, 10, 0.55);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease, background 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .screenshot-viewer:hover .screenshot-viewer__nav,
+    .screenshot-viewer__nav:focus-visible { opacity: 1; }
+
+    @media (hover: none) { .screenshot-viewer__nav { opacity: 1 !important; } }
+
+    .screenshot-viewer__nav:hover {
+      background: rgba(10, 10, 10, 0.8);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .screenshot-viewer__nav--prev { left: 14px; }
+    .screenshot-viewer__nav--next { right: 14px; }
+
+    /* Dots — images within the active option */
+    .screenshot-viewer__dots {
+      display: flex;
+      gap: 7px;
+      justify-content: center;
+      padding: 12px 0 10px;
+      min-height: 28px;
+    }
+
+    .screenshot-viewer__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      transition: background 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .screenshot-viewer__dot.is-active {
+      background: var(--accent);
+      transform: scale(1.4);
+    }
+
+    @media (max-width: 600px) {
+      .screenshot-viewer__slide img { height: 50vh; }
+    }
+
+    /* ── Option picker ── */
+    .poll-options {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: var(--space-lg);
+    }
+
+    .poll-option {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding: 0;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: color var(--transition-base);
+    }
+
+    .poll-option__thumb {
+      aspect-ratio: 3 / 4;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 2px solid var(--border);
+      transition: border-color var(--transition-base), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .poll-option__thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 35%;
+    }
+
+    .poll-option:hover .poll-option__thumb {
+      border-color: rgba(245, 200, 66, 0.5);
+      transform: scale(1.04);
+    }
+
+    .poll-option.is-active { color: var(--accent); }
+
+    .poll-option.is-active .poll-option__thumb {
       border-color: var(--accent);
+    }
+
+    @media (max-width: 600px) {
+      .poll-options { gap: 6px; }
+      .poll-option { font-size: 0.68rem; white-space: nowrap; }
+    }
+
+    /* ── Lightbox ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 60px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .lightbox.is-open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .lightbox__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.93);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .lightbox__close {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .lightbox__close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.12) rotate(90deg);
+    }
+
+    .lightbox__viewer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      max-width: 100%;
+    }
+
+    .lightbox__img-wrap {
+      max-width: calc(100vw - 160px);
+      max-height: 82vh;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.25s ease;
+    }
+
+    .lightbox__img-wrap.is-transitioning {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+
+    .lightbox__img-wrap img {
+      max-width: 100%;
+      max-height: 82vh;
+      object-fit: contain;
+      display: block;
+      border-radius: var(--radius-md);
+    }
+
+    .lightbox__btn {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      transition: background 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .lightbox__btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: scale(1.12);
+    }
+
+    .lightbox__counter {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 600px) {
+      .lightbox { padding: 60px 0 60px; }
+      .lightbox__img-wrap { max-width: 100vw; border-radius: 0; }
+      .lightbox__btn { display: none; }
+    }
+
+    .project-modal__content {
+      padding: var(--space-lg);
+    }
+
+    .project-modal__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .project-modal__title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-sm);
+    }
+
+    .project-modal__desc {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: var(--space-lg);
+      max-width: 640px;
+    }
+
+    .project-modal__section-heading {
+      font-family: var(--font-heading);
+      font-size: 0.72rem;
+      font-weight: 700;
       color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .project-modal__panel { max-height: 95vh; border-radius: var(--radius-lg); }
+      .project-modal__content { padding: var(--space-md); }
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      padding-block: var(--space-md);
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <a href="/" aria-label="Studio Hibari home">
-    <img class="polls__logo" src="/images/logo/sh_studiohibari_logo_small.png" alt="Studio Hibari logo" />
-  </a>
-  <h1 class="polls__title">Polls<span>.</span></h1>
-  <p class="polls__text" data-en="Coming soon." data-de="Kommt bald.">Coming soon.</p>
-  <a class="polls__back" href="/" data-en="← Back to Studio Hibari" data-de="← Zurück zu Studio Hibari">← Back to Studio Hibari</a>
+  <header class="container topbar">
+    <a href="/" class="topbar__logo" aria-label="Studio Hibari home">
+      <img src="/images/logo/sh_studiohibari_logo_small.png" alt="" />
+      Studio Hibari
+    </a>
+    <a href="/" class="topbar__back" data-i18n="back">← Back</a>
+  </header>
+
+  <main class="polls">
+    <div class="container">
+      <div class="polls__header reveal">
+        <h1 class="polls__title">Polls<span>.</span></h1>
+        <p class="polls__sub" data-i18n="sub">Small decisions, crowdsourced. Pick a poll, have a look, tell me what you think.</p>
+      </div>
+
+      <div class="polls__grid" id="pollsGrid"></div>
+    </div>
+  </main>
+
+  <footer class="footer">© 2026 · hibari.studio</footer>
+
+  <!-- ===== POLL MODAL ===== -->
+  <div class="project-modal" id="pollModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="project-modal__backdrop" id="modalBackdrop"></div>
+
+    <button class="project-modal__project-nav project-modal__project-nav--prev" id="pollPrev" aria-label="Previous poll">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M13 16L7 10l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="project-modal__project-nav project-modal__project-nav--next" id="pollNext" aria-label="Next poll">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <div class="project-modal__panel" id="modalPanel">
+      <button class="project-modal__close" id="modalClose" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="screenshot-viewer" id="imageViewer">
+        <div class="screenshot-viewer__track" id="imageTrack"></div>
+        <button class="screenshot-viewer__nav screenshot-viewer__nav--prev" id="imgPrev" aria-label="Previous image">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M11 14L6 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="screenshot-viewer__nav screenshot-viewer__nav--next" id="imgNext" aria-label="Next image">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="screenshot-viewer__dots" id="imgDots"></div>
+      </div>
+      <div class="project-modal__content">
+        <div class="project-modal__tags" id="modalTags"></div>
+        <h2 class="project-modal__title" id="modalTitle"></h2>
+        <p class="project-modal__desc" id="modalDesc"></p>
+        <p class="project-modal__section-heading" id="modalOptionsHeading"></p>
+        <div class="poll-options" id="pollOptions"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== LIGHTBOX ===== -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightbox__backdrop" id="lightboxBackdrop"></div>
+    <button class="lightbox__close" id="lightboxClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="lightbox__viewer">
+      <button class="lightbox__btn lightbox__btn--prev" id="lightboxPrev" aria-label="Previous">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M13 16L7 10l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="lightbox__img-wrap" id="lightboxImgWrap">
+        <img id="lightboxImg" alt="" />
+      </div>
+      <button class="lightbox__btn lightbox__btn--next" id="lightboxNext" aria-label="Next">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="lightbox__counter" id="lightboxCounter"></div>
+  </div>
 
   <script>
-    // Mirror the language chosen on the main page
-    try {
-      if (localStorage.getItem('lang') === 'de') {
-        document.documentElement.lang = 'de';
-        document.querySelectorAll('[data-de]').forEach(el => { el.textContent = el.dataset.de; });
+    /* =====================================================
+       LANGUAGE — mirrors the choice made on the main page
+       ===================================================== */
+    let currentLang = 'en';
+    try { if (localStorage.getItem('lang') === 'de') currentLang = 'de'; } catch (e) {}
+    document.documentElement.lang = currentLang;
+
+    const str = v => (typeof v === 'object' && v !== null) ? (v[currentLang] ?? v.en) : v;
+
+    const ui = {
+      back:    { en: '← Back', de: '← Zurück' },
+      sub:     { en: 'Small decisions, crowdsourced. Pick a poll, have a look, tell me what you think.', de: 'Kleine Entscheidungen, gemeinsam getroffen. Umfrage auswählen, reinschauen, mitreden.' },
+      cta:     { en: 'view poll', de: 'zur Umfrage' },
+      option:  { en: 'Option', de: 'Option' },
+      options: { en: 'The options', de: 'Die Optionen' },
+    };
+
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = str(ui[el.dataset.i18n]); });
+
+    /* =====================================================
+       POLL DATA
+       ===================================================== */
+    const G = '/images/polls/glasses/';
+    const pollData = {
+      glasses: {
+        title: { en: 'Which glasses suit me best?', de: 'Welche Brille steht mir am besten?' },
+        desc:  { en: 'Five frames, one face. Flip through the options and help me decide which pair I should get.', de: 'Fünf Gestelle, ein Gesicht. Klick dich durch die Optionen und hilf mir zu entscheiden, welche Brille ich nehmen soll.' },
+        tags:  [{ en: '5 options', de: '5 Optionen' }, 'Style', { en: 'Open', de: 'Offen' }],
+        options: [
+          { images: [G + 'glasses1/photo_5352732336040126861_y.jpg', G + 'glasses1/photo_5352732336040126862_y.jpg', G + 'glasses1/photo_5352732336040126863_y.jpg'] },
+          { images: [G + 'glasses2/photo_5352732336040126869_y.jpg', G + 'glasses2/photo_5352732336040126870_y.jpg'] },
+          { images: [G + 'glasses3/photo_5352732336040126868_y.jpg'] },
+          { images: [G + 'glasses4/photo_5352732336040126866_y.jpg'] },
+          { images: [G + 'glasses5/photo_5352732336040126865_y.jpg'] },
+        ],
+      },
+    };
+    const pollOrder = Object.keys(pollData);
+
+    /* =====================================================
+       CARDS
+       ===================================================== */
+    const arrowSvg = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    document.getElementById('pollsGrid').innerHTML = pollOrder.map((id, i) => {
+      const p = pollData[id];
+      return `
+        <article class="card reveal reveal-delay-${(i % 2) + 1}" data-poll="${id}">
+          <div class="card__thumbnail">
+            <div class="card__strip">
+              ${p.options.map(o => `<img src="${o.images[0]}" alt="" loading="lazy" />`).join('')}
+            </div>
+          </div>
+          <div class="card__body">
+            <h3 class="card__title">${str(p.title)}</h3>
+            <p class="card__desc">${str(p.desc)}</p>
+            <div class="card__tags">${p.tags.map(t => `<span class="card__tag">${str(t)}</span>`).join('')}</div>
+            <span class="card__cta"><span>${str(ui.cta)}</span> ${arrowSvg}</span>
+          </div>
+        </article>`;
+    }).join('');
+
+    /* =====================================================
+       SCROLL REVEAL
+       ===================================================== */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* =====================================================
+       POLL MODAL
+       ===================================================== */
+    const modal         = document.getElementById('pollModal');
+    const modalPanel    = document.getElementById('modalPanel');
+    const modalClose    = document.getElementById('modalClose');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const imgTrack      = document.getElementById('imageTrack');
+    const imgDotsEl     = document.getElementById('imgDots');
+    const imgPrev       = document.getElementById('imgPrev');
+    const imgNext       = document.getElementById('imgNext');
+    const optionsEl     = document.getElementById('pollOptions');
+    const pollPrev      = document.getElementById('pollPrev');
+    const pollNext      = document.getElementById('pollNext');
+
+    /* ── Swipe helper ── */
+    function addSwipe(el, onLeft, onRight) {
+      let sx = 0;
+      el.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+      el.addEventListener('touchend',   e => {
+        const dx = e.changedTouches[0].clientX - sx;
+        if (Math.abs(dx) > 44) { dx < 0 ? onLeft() : onRight(); }
+      }, { passive: true });
+    }
+
+    /* ── Image viewer — all options' images in one track ── */
+    let slides = [];   // [{ src, option, indexInOption }]
+    let imgIdx = 0;
+
+    function imgGoTo(idx, skipAnim) {
+      imgIdx = ((idx % slides.length) + slides.length) % slides.length;
+      if (skipAnim) {
+        imgTrack.style.transition = 'none';
+        imgTrack.style.transform  = `translateX(-${imgIdx * 100}%)`;
+        requestAnimationFrame(() => { imgTrack.style.transition = ''; });
+      } else {
+        imgTrack.style.transform = `translateX(-${imgIdx * 100}%)`;
       }
-    } catch (e) {}
+      syncOptionState();
+    }
+
+    function optionGoTo(optIdx) {
+      imgGoTo(slides.findIndex(s => s.option === optIdx));
+    }
+
+    // Highlight the active option and show dots for its images
+    function syncOptionState() {
+      const cur = slides[imgIdx];
+      optionsEl.querySelectorAll('.poll-option').forEach((b, i) => {
+        b.classList.toggle('is-active', i === cur.option);
+        b.setAttribute('aria-pressed', i === cur.option ? 'true' : 'false');
+      });
+
+      const inOption = slides.map((s, i) => ({ ...s, i })).filter(s => s.option === cur.option);
+      imgDotsEl.innerHTML = inOption.length > 1
+        ? inOption.map(s => `<button class="screenshot-viewer__dot${s.i === imgIdx ? ' is-active' : ''}" data-i="${s.i}" aria-label="Image ${s.indexInOption + 1}"></button>`).join('')
+        : '';
+      imgDotsEl.querySelectorAll('.screenshot-viewer__dot').forEach(d =>
+        d.addEventListener('click', () => imgGoTo(+d.dataset.i)));
+    }
+
+    function buildViewer(p) {
+      slides = p.options.flatMap((o, optIdx) =>
+        o.images.map((src, i) => ({ src, option: optIdx, indexInOption: i })));
+
+      imgTrack.innerHTML = slides.map((s, i) => `
+        <div class="screenshot-viewer__slide" data-index="${i}">
+          <span class="screenshot-viewer__badge">${str(ui.option)} ${s.option + 1}</span>
+          <img src="${s.src}" alt="${str(ui.option)} ${s.option + 1}" loading="lazy" />
+          <div class="screenshot-viewer__zoom" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="12" cy="12" r="8" stroke="white" stroke-width="1.8"/>
+              <path d="M18 18l6 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 12h6M12 9v6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>`).join('');
+
+      optionsEl.innerHTML = p.options.map((o, i) => `
+        <button class="poll-option" data-option="${i}" aria-pressed="false">
+          <span class="poll-option__thumb"><img src="${o.images[0]}" alt="" loading="lazy" /></span>
+          ${str(ui.option)} ${i + 1}
+        </button>`).join('');
+
+      optionsEl.querySelectorAll('.poll-option').forEach(b =>
+        b.addEventListener('click', () => optionGoTo(+b.dataset.option)));
+
+      // Slide click → lightbox
+      imgTrack.querySelectorAll('.screenshot-viewer__slide').forEach(slide =>
+        slide.addEventListener('click', () => openLightbox(slides, +slide.dataset.index)));
+
+      imgGoTo(0, true);
+    }
+
+    imgPrev.addEventListener('click', () => imgGoTo(imgIdx - 1));
+    imgNext.addEventListener('click', () => imgGoTo(imgIdx + 1));
+    addSwipe(document.getElementById('imageViewer'),
+      () => imgGoTo(imgIdx + 1),
+      () => imgGoTo(imgIdx - 1));
+
+    /* ── Lightbox ── */
+    const lightbox        = document.getElementById('lightbox');
+    const lightboxImg     = document.getElementById('lightboxImg');
+    const lightboxImgWrap = document.getElementById('lightboxImgWrap');
+    const lightboxCounter = document.getElementById('lightboxCounter');
+
+    let lbSlides = [];
+    let lbIdx    = 0;
+
+    function lbUpdateCounter() {
+      const s = lbSlides[lbIdx];
+      lightboxCounter.textContent = `${str(ui.option)} ${s.option + 1} · ${lbIdx + 1} / ${lbSlides.length}`;
+    }
+
+    function lbGoTo(idx) {
+      lbIdx = ((idx % lbSlides.length) + lbSlides.length) % lbSlides.length;
+      lightboxImgWrap.classList.add('is-transitioning');
+      setTimeout(() => {
+        lightboxImg.src = lbSlides[lbIdx].src;
+        lightboxImgWrap.classList.remove('is-transitioning');
+        lbUpdateCounter();
+      }, 220);
+      // Keep the viewer behind in sync
+      imgGoTo(lbIdx, true);
+    }
+
+    function openLightbox(items, startIdx) {
+      lbSlides = items;
+      lbIdx    = startIdx ?? 0;
+      lightboxImg.src = lbSlides[lbIdx].src;
+      lbUpdateCounter();
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('lightboxPrev').addEventListener('click', () => lbGoTo(lbIdx - 1));
+    document.getElementById('lightboxNext').addEventListener('click', () => lbGoTo(lbIdx + 1));
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    document.getElementById('lightboxBackdrop').addEventListener('click', closeLightbox);
+    addSwipe(lightbox, () => lbGoTo(lbIdx + 1), () => lbGoTo(lbIdx - 1));
+
+    /* ── Modal open/close ── */
+    let currentPollId = null;
+    let isAnimating   = false;
+
+    // Poll-to-poll arrows only make sense with more than one poll
+    pollPrev.hidden = pollNext.hidden = pollOrder.length < 2;
+
+    function populateModal(p) {
+      buildViewer(p);
+      document.getElementById('modalTags').innerHTML = p.tags
+        .map(t => `<span class="card__tag">${str(t)}</span>`).join('');
+      document.getElementById('modalTitle').textContent = str(p.title);
+      document.getElementById('modalDesc').textContent  = str(p.desc);
+      document.getElementById('modalOptionsHeading').textContent = str(ui.options);
+    }
+
+    function openModal(pollId, direction) {
+      const p = pollData[pollId];
+      if (!p || isAnimating) return;
+
+      const isUpdate = modal.classList.contains('is-open') && direction;
+
+      if (isUpdate) {
+        isAnimating = true;
+        const exitX  = direction === 'next' ? '-72px' : '72px';
+        const enterX = direction === 'next' ? '72px' : '-72px';
+
+        // Slide out
+        modalPanel.style.transition = 'transform 0.22s ease, opacity 0.18s ease';
+        modalPanel.style.transform  = `translateX(${exitX}) scale(0.97)`;
+        modalPanel.style.opacity    = '0';
+
+        setTimeout(() => {
+          populateModal(p);
+          modalPanel.scrollTop = 0;
+          currentPollId = pollId;
+
+          // Snap to enter position
+          modalPanel.style.transition = 'none';
+          modalPanel.style.transform  = `translateX(${enterX}) scale(0.97)`;
+
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            // Slide in with spring
+            modalPanel.style.transition = 'transform 0.38s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.28s ease';
+            modalPanel.style.transform  = '';
+            modalPanel.style.opacity    = '';
+            setTimeout(() => { isAnimating = false; }, 400);
+          }));
+        }, 210);
+
+      } else {
+        populateModal(p);
+        currentPollId = pollId;
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        modalClose.focus();
+      }
+    }
+
+    function navigatePoll(direction) {
+      if (pollOrder.length < 2) return;
+      const idx  = pollOrder.indexOf(currentPollId);
+      const next = (idx + (direction === 'next' ? 1 : -1) + pollOrder.length) % pollOrder.length;
+      openModal(pollOrder[next], direction);
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      modalPanel.style.transform = '';
+      modalPanel.style.opacity   = '';
+      isAnimating = false;
+    }
+
+    pollPrev.addEventListener('click', () => navigatePoll('prev'));
+    pollNext.addEventListener('click', () => navigatePoll('next'));
+
+    // Swipe on modal panel (but not inside the image viewer) to navigate polls
+    let pollSwipeX = 0;
+    modalPanel.addEventListener('touchstart', e => {
+      if (e.target.closest('#imageViewer')) return;
+      pollSwipeX = e.touches[0].clientX;
+    }, { passive: true });
+    modalPanel.addEventListener('touchend', e => {
+      if (e.target.closest('#imageViewer')) return;
+      const dx = e.changedTouches[0].clientX - pollSwipeX;
+      if (Math.abs(dx) > 80) navigatePoll(dx < 0 ? 'next' : 'prev');
+    }, { passive: true });
+
+    document.querySelectorAll('.card[data-poll]').forEach(card => {
+      card.addEventListener('click', () => openModal(card.dataset.poll));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.dataset.poll); } });
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+    });
+
+    modalClose.addEventListener('click', closeModal);
+    modalBackdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (lightbox.classList.contains('is-open')) { closeLightbox(); return; }
+        if (modal.classList.contains('is-open')) closeModal();
+      }
+      if (lightbox.classList.contains('is-open')) {
+        if (e.key === 'ArrowLeft')  lbGoTo(lbIdx - 1);
+        if (e.key === 'ArrowRight') lbGoTo(lbIdx + 1);
+      }
+      if (modal.classList.contains('is-open') && !lightbox.classList.contains('is-open')) {
+        if (e.key === 'ArrowLeft')  imgGoTo(imgIdx - 1);
+        if (e.key === 'ArrowRight') imgGoTo(imgIdx + 1);
+      }
+    });
   </script>
 </body>
 </html>
