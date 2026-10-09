@@ -36,8 +36,8 @@ const pollData = {
   glasses: {
     title: { en: 'Which glasses suit me best?', de: 'Welche Brille steht mir am besten?' },
     desc:  { en: 'Five frames, one face. Flip through the options and help me decide which pair I should get.', de: 'Fünf Gestelle, ein Gesicht. Klick dich durch die Optionen und hilf mir zu entscheiden, welche Brille ich nehmen soll.' },
-    // Short option name used on small screens ("Brille 1" instead of "Option 1")
-    optionShort: { en: 'Pair', de: 'Brille' },
+    // What the options are called ("Brille 1" instead of "Option 1")
+    optionName: { en: 'Pair', de: 'Brille' },
     options: [
       { images: [G + 'glasses1/photo_5352732336040126861_y.jpg', G + 'glasses1/photo_5352732336040126862_y.jpg', G + 'glasses1/photo_5352732336040126863_y.jpg'] },
       { images: [G + 'glasses2/photo_5352732336040126869_y.jpg', G + 'glasses2/photo_5352732336040126870_y.jpg'] },
@@ -97,9 +97,8 @@ function renderCards() {
    ===================================================== */
 const poll = pollData[pollId];
 
-// "Option" on desktop, the poll's short name ("Brille") on mobile
-const mobileQuery = window.matchMedia('(max-width: 860px)');
-const optionName  = () => str(mobileQuery.matches && poll.optionShort ? poll.optionShort : ui.option);
+// The poll's own name for its options ("Brille"), falling back to "Option"
+const optionName = () => str(poll.optionName || ui.option);
 
 /* ── Swipe helper ── */
 function addSwipe(el, onLeft, onRight) {
@@ -475,11 +474,7 @@ function setLang(lang) {
 setLang(currentLang);
 langToggle.addEventListener('click', () => setLang(currentLang === 'en' ? 'de' : 'en'));
 
-if (pageType === 'poll') {
-  loadVote();
-  // Re-label options when crossing the mobile breakpoint (rotation, resize)
-  mobileQuery.addEventListener('change', renderPoll);
-}
+if (pageType === 'poll') loadVote();
 
 /* =====================================================
    FOOTER LOGO — 3D tilt + glow on mousemove (as on the main page)
