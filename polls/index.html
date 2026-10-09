@@ -106,6 +106,8 @@
       max-width: 100%;
     }
 
+    [hidden] { display: none !important; }
+
     .container {
       width: 100%;
       max-width: var(--max-width);
@@ -155,22 +157,73 @@
       content: url("/images/logo/sh_studiohibari_logo_small_black.png");
     }
 
-    .topbar__back {
-      display: inline-flex;
+    /* ── Top bar actions (same handles as the main page) ── */
+    .nav__actions {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      background: var(--surface);
-      font-size: 0.82rem;
-      font-weight: 500;
-      transition: border-color var(--transition-base), color var(--transition-base);
+      gap: 8px;
     }
 
-    .topbar__back:hover {
-      border-color: var(--accent);
+    /* ── Theme toggle ── */
+    .nav__theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      background: rgba(26, 26, 26, 0.75);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      backdrop-filter: blur(12px);
+      color: var(--text-muted);
+      transition: color var(--transition-base), border-color var(--transition-base), background var(--transition-base);
+      flex-shrink: 0;
+    }
+
+    [data-theme="light"] .nav__theme-toggle {
+      background: rgba(236, 234, 228, 0.75);
+    }
+
+    .nav__theme-toggle:hover {
       color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Show the right icon per mode */
+    .nav__theme-toggle .icon-moon { display: block; }
+    .nav__theme-toggle .icon-sun  { display: none;  }
+    [data-theme="light"] .nav__theme-toggle .icon-moon { display: none;  }
+    [data-theme="light"] .nav__theme-toggle .icon-sun  { display: block; }
+
+    /* ── Language toggle ── */
+    .nav__lang-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      padding: 0 10px;
+      cursor: pointer;
+      background: rgba(26, 26, 26, 0.75);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      backdrop-filter: blur(12px);
+      font-family: var(--font-heading);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      transition: color var(--transition-base), border-color var(--transition-base), background var(--transition-base);
+      flex-shrink: 0;
+    }
+
+    [data-theme="light"] .nav__lang-toggle {
+      background: rgba(236, 234, 228, 0.75);
+    }
+
+    .nav__lang-toggle:hover {
+      color: var(--accent);
+      border-color: var(--accent);
     }
 
     /* ===== POLLS SECTION ===== */
@@ -391,8 +444,6 @@
       background: rgba(255, 255, 255, 0.18);
       transform: translateY(-50%) scale(1.1);
     }
-
-    .project-modal__project-nav[hidden] { display: none; }
 
     .project-modal__project-nav--prev { left: 16px; }
     .project-modal__project-nav--next { right: 16px; }
@@ -816,7 +867,20 @@
       <img src="/images/logo/sh_studiohibari_logo_small.png" alt="" />
       Studio Hibari
     </a>
-    <a href="/" class="topbar__back" data-i18n="back">← Back</a>
+    <div class="nav__actions">
+      <button class="nav__lang-toggle" id="langToggle" aria-label="Switch language">DE</button>
+      <button class="nav__theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+        <!-- moon = dark mode is active -->
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M13.5 10.5A6 6 0 0 1 5.5 2.5a6 6 0 1 0 8 8Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <!-- sun = light mode is active -->
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M3.1 12.9l1.4-1.4M11.5 4.5l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <main class="polls">
@@ -897,19 +961,15 @@
        ===================================================== */
     let currentLang = 'en';
     try { if (localStorage.getItem('lang') === 'de') currentLang = 'de'; } catch (e) {}
-    document.documentElement.lang = currentLang;
 
     const str = v => (typeof v === 'object' && v !== null) ? (v[currentLang] ?? v.en) : v;
 
     const ui = {
-      back:    { en: '← Back', de: '← Zurück' },
-      sub:     { en: 'Small decisions, crowdsourced. Pick a poll, have a look, tell me what you think.', de: 'Kleine Entscheidungen, gemeinsam getroffen. Umfrage auswählen, reinschauen, mitreden.' },
+      sub:{ en: 'Small decisions, crowdsourced. Pick a poll, have a look, tell me what you think.', de: 'Kleine Entscheidungen, gemeinsam getroffen. Umfrage auswählen, reinschauen, mitreden.' },
       cta:     { en: 'view poll', de: 'zur Umfrage' },
       option:  { en: 'Option', de: 'Option' },
       options: { en: 'The options', de: 'Die Optionen' },
     };
-
-    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = str(ui[el.dataset.i18n]); });
 
     /* =====================================================
        POLL DATA
@@ -936,10 +996,13 @@
        ===================================================== */
     const arrowSvg = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-    document.getElementById('pollsGrid').innerHTML = pollOrder.map((id, i) => {
+    const pollsGrid = document.getElementById('pollsGrid');
+
+    function renderCards() {
+      pollsGrid.innerHTML = pollOrder.map((id, i) => {
       const p = pollData[id];
       return `
-        <article class="card reveal reveal-delay-${(i % 2) + 1}" data-poll="${id}">
+        <article class="card reveal reveal-delay-${(i % 2) + 1}" data-poll="${id}" tabindex="0" role="button">
           <div class="card__thumbnail">
             <div class="card__strip">
               ${p.options.map(o => `<img src="${o.images[0]}" alt="" loading="lazy" />`).join('')}
@@ -952,7 +1015,9 @@
             <span class="card__cta"><span>${str(ui.cta)}</span> ${arrowSvg}</span>
           </div>
         </article>`;
-    }).join('');
+      }).join('');
+      pollsGrid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    }
 
     /* =====================================================
        SCROLL REVEAL
@@ -966,6 +1031,39 @@
       });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* =====================================================
+       LANGUAGE TOGGLE
+       ===================================================== */
+    const langToggle = document.getElementById('langToggle');
+    let cardsRendered = false;
+
+    function setLang(lang) {
+      currentLang = lang;
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      document.documentElement.lang = lang;
+      langToggle.textContent = lang === 'en' ? 'DE' : 'EN';
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = str(ui[el.dataset.i18n]); });
+      renderCards();
+      // Cards already on screen shouldn't animate in again
+      if (cardsRendered) pollsGrid.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
+      cardsRendered = true;
+    }
+
+    setLang(currentLang);
+    langToggle.addEventListener('click', () => setLang(currentLang === 'en' ? 'de' : 'en'));
+
+    /* =====================================================
+       THEME TOGGLE — dark / light
+       ===================================================== */
+    const root = document.documentElement;
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const isLight = root.getAttribute('data-theme') === 'light';
+      if (isLight) root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', 'light');
+      try { localStorage.setItem('theme', isLight ? 'dark' : 'light'); } catch (e) {}
+    });
 
     /* =====================================================
        POLL MODAL
@@ -1012,6 +1110,20 @@
       imgGoTo(slides.findIndex(s => s.option === optIdx));
     }
 
+    // Slide indices belonging to the active option
+    function optionSlideIdxs() {
+      const opt = slides[imgIdx].option;
+      return slides.map((s, i) => i).filter(i => slides[i].option === opt);
+    }
+
+    // Arrows / swipe / keys cycle within the active option only
+    function imgStep(dir) {
+      const idxs = optionSlideIdxs();
+      if (idxs.length < 2) return;
+      const pos = idxs.indexOf(imgIdx);
+      imgGoTo(idxs[(pos + dir + idxs.length) % idxs.length]);
+    }
+
     // Highlight the active option and show dots for its images
     function syncOptionState() {
       const cur = slides[imgIdx];
@@ -1021,6 +1133,7 @@
       });
 
       const inOption = slides.map((s, i) => ({ ...s, i })).filter(s => s.option === cur.option);
+      imgPrev.hidden = imgNext.hidden = inOption.length < 2;
       imgDotsEl.innerHTML = inOption.length > 1
         ? inOption.map(s => `<button class="screenshot-viewer__dot${s.i === imgIdx ? ' is-active' : ''}" data-i="${s.i}" aria-label="Image ${s.indexInOption + 1}"></button>`).join('')
         : '';
@@ -1054,34 +1167,43 @@
       optionsEl.querySelectorAll('.poll-option').forEach(b =>
         b.addEventListener('click', () => optionGoTo(+b.dataset.option)));
 
-      // Slide click → lightbox
+      // Slide click → lightbox with the active option's images
       imgTrack.querySelectorAll('.screenshot-viewer__slide').forEach(slide =>
-        slide.addEventListener('click', () => openLightbox(slides, +slide.dataset.index)));
+        slide.addEventListener('click', () => {
+          const idxs = optionSlideIdxs();
+          openLightbox(idxs.map(i => ({ ...slides[i], i })), idxs.indexOf(+slide.dataset.index));
+        }));
 
       imgGoTo(0, true);
     }
 
-    imgPrev.addEventListener('click', () => imgGoTo(imgIdx - 1));
-    imgNext.addEventListener('click', () => imgGoTo(imgIdx + 1));
+    imgPrev.addEventListener('click', () => imgStep(-1));
+    imgNext.addEventListener('click', () => imgStep(1));
     addSwipe(document.getElementById('imageViewer'),
-      () => imgGoTo(imgIdx + 1),
-      () => imgGoTo(imgIdx - 1));
+      () => imgStep(1),
+      () => imgStep(-1));
 
     /* ── Lightbox ── */
     const lightbox        = document.getElementById('lightbox');
     const lightboxImg     = document.getElementById('lightboxImg');
     const lightboxImgWrap = document.getElementById('lightboxImgWrap');
     const lightboxCounter = document.getElementById('lightboxCounter');
+    const lightboxPrev    = document.getElementById('lightboxPrev');
+    const lightboxNext    = document.getElementById('lightboxNext');
 
     let lbSlides = [];
     let lbIdx    = 0;
 
     function lbUpdateCounter() {
       const s = lbSlides[lbIdx];
-      lightboxCounter.textContent = `${str(ui.option)} ${s.option + 1} · ${lbIdx + 1} / ${lbSlides.length}`;
+      lightboxCounter.textContent = lbSlides.length > 1
+        ? `${str(ui.option)} ${s.option + 1} · ${lbIdx + 1} / ${lbSlides.length}`
+        : `${str(ui.option)} ${s.option + 1}`;
+      lightboxPrev.hidden = lightboxNext.hidden = lbSlides.length < 2;
     }
 
     function lbGoTo(idx) {
+      if (lbSlides.length < 2) return;
       lbIdx = ((idx % lbSlides.length) + lbSlides.length) % lbSlides.length;
       lightboxImgWrap.classList.add('is-transitioning');
       setTimeout(() => {
@@ -1090,7 +1212,7 @@
         lbUpdateCounter();
       }, 220);
       // Keep the viewer behind in sync
-      imgGoTo(lbIdx, true);
+      imgGoTo(lbSlides[lbIdx].i, true);
     }
 
     function openLightbox(items, startIdx) {
@@ -1107,8 +1229,8 @@
       lightbox.setAttribute('aria-hidden', 'true');
     }
 
-    document.getElementById('lightboxPrev').addEventListener('click', () => lbGoTo(lbIdx - 1));
-    document.getElementById('lightboxNext').addEventListener('click', () => lbGoTo(lbIdx + 1));
+    lightboxPrev.addEventListener('click', () => lbGoTo(lbIdx - 1));
+    lightboxNext.addEventListener('click', () => lbGoTo(lbIdx + 1));
     document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
     document.getElementById('lightboxBackdrop').addEventListener('click', closeLightbox);
     addSwipe(lightbox, () => lbGoTo(lbIdx + 1), () => lbGoTo(lbIdx - 1));
@@ -1204,11 +1326,14 @@
       if (Math.abs(dx) > 80) navigatePoll(dx < 0 ? 'next' : 'prev');
     }, { passive: true });
 
-    document.querySelectorAll('.card[data-poll]').forEach(card => {
-      card.addEventListener('click', () => openModal(card.dataset.poll));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.dataset.poll); } });
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('role', 'button');
+    // Delegated — cards are re-rendered on language change
+    pollsGrid.addEventListener('click', e => {
+      const card = e.target.closest('.card[data-poll]');
+      if (card) openModal(card.dataset.poll);
+    });
+    pollsGrid.addEventListener('keydown', e => {
+      const card = e.target.closest('.card[data-poll]');
+      if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openModal(card.dataset.poll); }
     });
 
     modalClose.addEventListener('click', closeModal);
@@ -1223,8 +1348,8 @@
         if (e.key === 'ArrowRight') lbGoTo(lbIdx + 1);
       }
       if (modal.classList.contains('is-open') && !lightbox.classList.contains('is-open')) {
-        if (e.key === 'ArrowLeft')  imgGoTo(imgIdx - 1);
-        if (e.key === 'ArrowRight') imgGoTo(imgIdx + 1);
+        if (e.key === 'ArrowLeft')  imgStep(-1);
+        if (e.key === 'ArrowRight') imgStep(1);
       }
     });
   </script>
