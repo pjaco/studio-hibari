@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Polls · Studio Hibari</title>
+  <link rel="icon" type="image/png" href="/images/logo/sh_studiohibari_logo_small_stroke.png" />
+  <meta name="robots" content="noindex" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    // Apply stored theme before paint to avoid a flash
+    try {
+      if (localStorage.getItem('theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) {}
+  </script>
+
+  <style>
+    /* ===== CSS CUSTOM PROPERTIES ===== */
+    :root {
+      --bg: #0F0F0F;
+      --accent: #F5C842;
+      --text-primary: #F0EDE6;
+      --text-muted: #888888;
+      --surface: #1A1A1A;
+      --border: #2A2A2A;
+
+      --font-heading: 'Lato', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+
+      --radius-pill: 999px;
+
+      --space-sm: 1rem;
+      --space-md: 1.5rem;
+      --space-lg: 2.5rem;
+    }
+
+    /* ===== LIGHT MODE ===== */
+    [data-theme="light"] {
+      --bg: #F7F5F0;
+      --text-primary: #181818;
+      --text-muted: #787068;
+      --surface: #ECEAE4;
+      --border: #D8D5CE;
+      --accent: #D4A800;
+    }
+
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      padding: var(--space-lg) var(--space-md);
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      text-align: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #0F0F0F;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ===== PLACEHOLDER ===== */
+    .polls__logo {
+      width: 56px;
+      height: auto;
+    }
+
+    [data-theme="light"] .polls__logo {
+      content: url("/images/logo/sh_studiohibari_logo_small_black.png");
+    }
+
+    .polls__title {
+      font-family: var(--font-heading);
+      font-weight: 900;
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      line-height: 1.05;
+    }
+
+    .polls__title span {
+      color: var(--accent);
+    }
+
+    .polls__text {
+      color: var(--text-muted);
+      max-width: 32rem;
+    }
+
+    .polls__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      background: var(--surface);
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: border-color 0.25s ease, color 0.25s ease;
+    }
+
+    .polls__back:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <a href="/" aria-label="Studio Hibari home">
+    <img class="polls__logo" src="/images/logo/sh_studiohibari_logo_small.png" alt="Studio Hibari logo" />
+  </a>
+  <h1 class="polls__title">Polls<span>.</span></h1>
+  <p class="polls__text" data-en="Coming soon." data-de="Kommt bald.">Coming soon.</p>
+  <a class="polls__back" href="/" data-en="← Back to Studio Hibari" data-de="← Zurück zu Studio Hibari">← Back to Studio Hibari</a>
+
+  <script>
+    // Mirror the language chosen on the main page
+    try {
+      if (localStorage.getItem('lang') === 'de') {
+        document.documentElement.lang = 'de';
+        document.querySelectorAll('[data-de]').forEach(el => { el.textContent = el.dataset.de; });
+      }
+    } catch (e) {}
+  </script>
+</body>
+</html>
