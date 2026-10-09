@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Which glasses suit me best? · Studio Hibari</title>
+  <title>Welche Brille steht mir am besten? · Studio Hibari</title>
   <link rel="icon" type="image/png" href="/images/logo/sh_studiohibari_logo_small_stroke.png" />
   <meta name="robots" content="noindex" />
-  <meta name="description" content="Five frames, one face. Flip through the options and help me decide which pair I should get." />
+  <meta name="description" content="Fünf Gestelle, ein Gesicht. Klick dich durch die Optionen und hilf mir zu entscheiden, welche Brille ich nehmen soll." />
 
   <!-- Link previews (WhatsApp, Slack, iMessage …) -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Studio Hibari" />
   <meta property="og:url" content="https://www.hibari.studio/polls/glasses" />
-  <meta property="og:title" content="Which glasses suit me best?" />
-  <meta property="og:description" content="Five frames, one face. Help me decide which pair I should get." />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:title" content="Welche Brille steht mir am besten?" />
+  <meta property="og:description" content="Fünf Gestelle, ein Gesicht. Hilf mir zu entscheiden, welche Brille ich nehmen soll." />
   <meta property="og:image" content="https://www.hibari.studio/images/polls/glasses/glasses1/photo_5352732336040126861_y.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
 
@@ -38,7 +39,7 @@
       Studio Hibari
     </a>
     <div class="nav__actions">
-      <button class="nav__lang-toggle" id="langToggle" aria-label="Switch language">DE</button>
+      <button class="nav__lang-toggle" id="langToggle" aria-label="Switch language">EN</button>
       <button class="nav__theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
         <!-- moon = dark mode is active -->
         <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -57,7 +58,7 @@
     <div class="container">
       <a href="/polls" class="back-link">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M12 7H2M6 3L2 7l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span data-i18n="back">All polls</span>
+        <span data-i18n="back">Alle Umfragen</span>
       </a>
 
       <div class="poll">
@@ -75,12 +76,12 @@
         </div>
 
         <div class="poll__intro reveal reveal-delay-1">
-          <h1 class="poll__title" id="pollTitle">Which glasses suit me best?</h1>
+          <h1 class="poll__title" id="pollTitle">Welche Brille steht mir am besten?</h1>
           <p class="poll__desc" id="pollDesc"></p>
         </div>
 
         <div class="poll__choose reveal reveal-delay-1">
-          <p class="section-heading" data-i18n="options">The options</p>
+          <p class="section-heading" data-i18n="options">Die Optionen</p>
           <div class="poll-options" id="pollOptions"></div>
           <div class="poll-vote">
             <button class="poll-vote__btn" id="voteBtn"></button>
@@ -94,7 +95,7 @@
               <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M3 9v4h10V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span id="shareLabel" data-i18n="share">Share this poll</span>
+            <span id="shareLabel" data-i18n="share">Umfrage teilen</span>
           </button>
         </div>
       </div>

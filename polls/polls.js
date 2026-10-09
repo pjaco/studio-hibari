@@ -4,8 +4,10 @@
 /* =====================================================
    LANGUAGE — mirrors the choice made on the main page
    ===================================================== */
-let currentLang = 'en';
-try { if (localStorage.getItem('lang') === 'de') currentLang = 'de'; } catch (e) {}
+// Polls are German by default — only an explicit switch on a polls page changes that.
+// (Own key: the main page stores 'lang' on every visit, even without a switch.)
+let currentLang = 'de';
+try { if (localStorage.getItem('pollsLang') === 'en') currentLang = 'en'; } catch (e) {}
 
 const str = v => (typeof v === 'object' && v !== null) ? (v[currentLang] ?? v.en) : v;
 
@@ -456,7 +458,7 @@ let rendered = false;
 
 function setLang(lang) {
   currentLang = lang;
-  try { localStorage.setItem('lang', lang); } catch (e) {}
+  try { localStorage.setItem('pollsLang', lang); } catch (e) {}
   root.lang = lang;
   langToggle.textContent = lang === 'en' ? 'DE' : 'EN';
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = str(ui[el.dataset.i18n]); });
