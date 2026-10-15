@@ -1,6 +1,7 @@
 /* =====================================================
    SANDWICHABEND — renders everything from window.SANDWICH_DATA
    (see sandwich-data.js). No build step, no dependencies.
+   Most data is optional: whatever is missing is left out.
    ===================================================== */
 (function () {
   const DATA = window.SANDWICH_DATA;
@@ -8,36 +9,49 @@
   /* ── Helpers ── */
   const $  = sel => document.querySelector(sel);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
   const fmt = n => n.toFixed(1).replace('.', ',');
   const fmtDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const people   = Object.fromEntries(DATA.people.map(p => [p.id, p]));
-  const person   = id => people[id] || { name: id, emoji: '❓' };
+  const person   = id => people[id] || { name: id };
   const regulars = DATA.people.filter(p => !p.guest);
 
   const CUBE_EMOJI = { Sandwich: '🥪', Toast: '🍞', Taco: '🌮', Sushi: '🍣', Quiche: '🥧', Calzone: '🥟', Salad: '🥗', Cake: '🍰' };
-  const PH_COLORS  = ['#E4D5BC', '#FFE2B8', '#D9EBDD', '#FFD6D6', '#F2E6CF'];
+
+  // Initial in a coloured circle — no invented emojis for real people
+  const avatar = (p, extraCls = '') =>
+    `<span class="avatar ${extraCls}" style="--av:${p.color || 'var(--diner-kraft)'}" aria-hidden="true">${esc((p.name || '?').charAt(0))}</span>`;
+
+  const nameOf = s => s.name || 'Name folgt';
 
   /* ── Derived data ── */
-  // Events oldest → newest
-  const events = [...DATA.events].sort((a, b) => a.date.localeCompare(b.date));
+  // Events in data order (oldest first)
+  const events = [...DATA.events];
 
-  // Every sandwich, with its evening and overall score (average of all judges)
-  const sandwiches = events.flatMap(ev => ev.sandwiches.map(s => ({
+  // Every sandwich with its evening; overall = average of judges (null if unrated)
+  const sandwiches = events.flatMap(ev => (ev.sandwiches || []).map(s => ({
     ...s,
     event: ev,
-    overall: avg(Object.values(s.scores)),
+    overall: avg(Object.values(s.scores || {})),
   })));
   const sandwichById = Object.fromEntries(sandwiches.map(s => [s.id, s]));
+  const rated = sandwiches.filter(s => s.overall !== null);
 
-  // Winner of an evening = best overall score
-  const winnerOf = ev => sandwiches
-    .filter(s => s.event === ev)
-    .reduce((best, s) => (!best || s.overall > best.overall ? s : best), null);
+  // Does a sandwich have anything worth a detail view?
+  const hasDetails = s => !!(s.overall !== null || s.stats || s.description || s.cube || s.photo || s.disaster);
 
-  const latestEvent = events[events.length - 1];
-  const champion    = winnerOf(latestEvent);
+  // Winner: set explicitly, otherwise the best rated sandwich of the evening
+  function winnerOf(ev) {
+    if (ev.winner) return sandwichById[ev.winner] || null;
+    return sandwiches
+      .filter(s => s.event === ev && s.overall !== null)
+      .reduce((best, s) => (!best || s.overall > best.overall ? s : best), null);
+  }
+
+  // Title defender = winner of the most recent evening that has one
+  const championEvent = [...events].reverse().find(ev => winnerOf(ev));
+  const champion      = championEvent ? winnerOf(championEvent) : null;
 
   // All-time leaderboard — regulars only
   const leaderboard = regulars.map(p => {
@@ -46,13 +60,15 @@
       person: p,
       wins: events.filter(ev => winnerOf(ev)?.creator === p.id).length,
       entries: new Set(own.map(s => s.event.id)).size,
-      average: avg(own.map(s => s.overall)),
+      average: avg(own.filter(s => s.overall !== null).map(s => s.overall)),
     };
-  }).sort((a, b) => b.wins - a.wins || b.average - a.average);
+  }).sort((a, b) => b.wins - a.wins || (b.average ?? -1) - (a.average ?? -1));
+  const hasRanking = leaderboard.some(r => r.wins > 0 || r.average !== null);
 
-  const byScore = [...sandwiches].sort((a, b) => b.overall - a.overall);
+  // Fame = best rated; Shame = worst rated that aren't already famous
+  const byScore = [...rated].sort((a, b) => b.overall - a.overall);
   const fame  = byScore.slice(0, 3);
-  const shame = byScore.slice(-3).reverse();
+  const shame = [...byScore].reverse().filter(s => !fame.includes(s)).slice(0, 3);
 
   /* =====================================================
      SOUND — Web Audio, synthesized. Muted until the visitor
@@ -169,38 +185,51 @@
     if (wantOn) sound.blip();
   });
 
+
   /* =====================================================
      RENDERING
      ===================================================== */
-  const scoreBadge = (n, size = '') => {
+  const scoreBadge = n => {
+    if (n === null || n === undefined) return '';
     const cls = n >= 8 ? 'score--good' : n < 4.5 ? 'score--bad' : '';
-    return `<span class="score ${cls} ${size}" aria-label="Gesamtnote ${fmt(n)} von 10">${fmt(n)}<small>/10</small></span>`;
+    return `<span class="score ${cls}" aria-label="Gesamtnote ${fmt(n)} von 10">${fmt(n)}<small>/10</small></span>`;
   };
 
-  const cubeTag = cube => `<span class="cube-tag" title="Cube Rule: ${esc(DATA.cubeRule[cube] || '')}">${CUBE_EMOJI[cube] || '🍽️'} ${esc(cube)}</span>`;
+  const cubeTag = cube => cube
+    ? `<span class="cube-tag" title="Cube Rule: ${esc(DATA.cubeRule[cube] || '')}">${CUBE_EMOJI[cube] || '🍽️'} ${esc(cube)}</span>`
+    : '';
 
-  const photoOf = (s, i = 0) => s.photo
-    ? `<img src="${esc(s.photo)}" alt="${esc(s.name)}" loading="lazy" />`
-    : `<div class="placeholder" style="--ph-bg:${PH_COLORS[i % PH_COLORS.length]}" aria-hidden="true">${CUBE_EMOJI[s.cube] || '🥪'}<span class="placeholder__label">Foto folgt</span></div>`;
+  const emptyState = (icon, title, text) => `
+    <div class="empty-state">
+      <span class="empty-state__icon" aria-hidden="true">${icon}</span>
+      <div><b>${esc(title)}</b><p>${esc(text)}</p></div>
+    </div>`;
 
-  // A sandwich card; opens the detail view
-  function sandwichCard(s, { extra = '', flag = '', index = 0 } = {}) {
+  // A sandwich card. Only clickable when there's something to show in the detail view.
+  function sandwichCard(s, { extra = '', flag = '' } = {}) {
     const p = person(s.creator);
+    const clickable = hasDetails(s);
+    const attrs = clickable
+      ? `role="button" tabindex="0" data-sandwich="${esc(s.id)}" aria-label="${esc(nameOf(s))} von ${esc(p.name)} — Details öffnen"`
+      : '';
     return `
-      <div class="s-card" role="button" tabindex="0" data-sandwich="${esc(s.id)}" aria-label="${esc(s.name)} von ${esc(p.name)} — Details öffnen">
+      <div class="s-card ${clickable ? '' : 's-card--plain'}" ${attrs}>
         ${flag}
-        <div class="s-card__photo">${photoOf(s, index)}</div>
+        ${s.photo ? `<div class="s-card__photo"><img src="${esc(s.photo)}" alt="${esc(nameOf(s))}" loading="lazy" /></div>` : ''}
         <div class="s-card__body">
           <div class="s-card__top">
-            <div>
-              <div class="s-card__name">${esc(s.name)}</div>
-              <div class="s-card__by">${p.emoji} ${esc(p.name)} · ${esc(s.event.edition)}</div>
+            <div class="s-card__who">
+              ${avatar(p, 'avatar--sm')}
+              <div>
+                <div class="s-card__name ${s.name ? '' : 'is-missing'}">${esc(nameOf(s))}</div>
+                <div class="s-card__by">${esc(p.name)}${p.guest ? ' · Gast' : ''}</div>
+              </div>
             </div>
             ${scoreBadge(s.overall)}
           </div>
-          <div class="s-card__tags">${cubeTag(s.cube)}</div>
+          ${s.cube ? `<div class="s-card__tags">${cubeTag(s.cube)}</div>` : ''}
           ${extra}
-          <span class="s-card__more">Stats ansehen →</span>
+          ${clickable ? '<span class="s-card__more">Details ansehen →</span>' : ''}
         </div>
       </div>`;
   }
@@ -208,10 +237,9 @@
   /* ── Ticker ── */
   function renderTicker() {
     const items = [
-      `+++ Titelverteidiger: ${person(champion.creator).name} mit „${champion.name}“ +++`,
-      `+++ ${sandwiches.length} Sandwiches bewertet, ${events.length} Abende überlebt +++`,
-      `+++ Bestes Sandwich aller Zeiten: „${fame[0].name}“ (${fmt(fame[0].overall)}) +++`,
-      `+++ Schlimmstes Sandwich aller Zeiten: „${shame[0].name}“ (${fmt(shame[0].overall)}). Wir reden nicht drüber. +++`,
+      `+++ ${events.length} Sandwichabende überlebt, ${sandwiches.length} Sandwiches gebaut +++`,
+      champion ? `+++ Titelverteidiger: ${person(champion.creator).name} +++` : '+++ Titel aktuell vakant +++',
+      fame[0] ? `+++ Bestes Sandwich aller Zeiten: „${nameOf(fame[0])}“ (${fmt(fame[0].overall)}) +++` : '+++ Bewertet wird ab dem nächsten Abend +++',
       '+++ Die Cube Rule ist Gesetz +++',
       '+++ Sound einschalten für maximalen Crunch +++',
     ];
@@ -221,17 +249,25 @@
 
   /* ── Hero: title defender ── */
   function renderChampion() {
-    const p = person(champion.creator);
+    const body = champion ? (() => {
+      const p = person(champion.creator);
+      return `
+        <div class="champion__name">${esc(p.name)}</div>
+        <p class="champion__meta">Gewinner von <b>${esc(championEvent.title)}</b>${championEvent.date ? `<br />${fmtDate(championEvent.date)}` : ''}</p>
+        ${champion.name || hasDetails(champion) ? `
+          <button class="champion__sandwich" ${hasDetails(champion) ? `data-sandwich="${esc(champion.id)}"` : 'disabled'}>
+            <span><b>${esc(nameOf(champion))}</b>${hasDetails(champion) ? '<span>Details ansehen →</span>' : ''}</span>
+            ${scoreBadge(champion.overall)}
+          </button>` : ''}`;
+    })() : `
+        <div class="champion__name">Titel vakant</div>
+        <p class="champion__meta">Für die bisherigen Abende ist kein Sieger eingetragen. Der nächste Abend entscheidet.</p>`;
+
     $('#champion').innerHTML = `
       <div class="champion__banner">★ Titelverteidiger ★</div>
       <button class="champion__trophy" id="trophy" aria-label="Pokal — Siegerfanfare abspielen">🏆</button>
       <p class="champion__hint">Klick den Pokal</p>
-      <div class="champion__name">${p.emoji} ${esc(p.name)}</div>
-      <p class="champion__meta">Gewinner von <b>${esc(latestEvent.title)}</b><br />${fmtDate(latestEvent.date)}</p>
-      <button class="champion__sandwich" data-sandwich="${esc(champion.id)}">
-        <span><b>${esc(champion.name)}</b><span>${esc(champion.cube)} · Details ansehen →</span></span>
-        ${scoreBadge(champion.overall)}
-      </button>`;
+      ${body}`;
 
     const trophy = $('#trophy');
     trophy.addEventListener('click', () => {
@@ -246,38 +282,44 @@
   function renderLeaderboard() {
     const medals = ['🥇', '🥈', '🥉'];
     $('#leaderboardList').innerHTML = leaderboard.map((r, i) => `
-      <div class="lb-row ${i === 0 ? 'lb-row--first' : ''}">
-        <div class="lb-rank">${medals[i] || '#' + (i + 1)}</div>
-        <div class="avatar" style="background:${r.person.color}22">${r.person.emoji}</div>
+      <div class="lb-row ${hasRanking && i === 0 ? 'lb-row--first' : ''}">
+        <div class="lb-rank">${hasRanking ? (medals[i] || '#' + (i + 1)) : '–'}</div>
+        ${avatar(r.person)}
         <div>
           <div class="lb-name">${esc(r.person.name)}</div>
-          <div class="lb-tagline">${esc(r.person.tagline || '')}</div>
+          ${r.person.tagline ? `<div class="lb-tagline">${esc(r.person.tagline)}</div>` : ''}
         </div>
         <div class="lb-stats">
           <div class="lb-stat lb-stat--wins"><b>${r.wins}</b><span>Siege</span></div>
           <div class="lb-stat"><b>${r.entries}</b><span>Teilnahmen</span></div>
-          <div class="lb-stat lb-stat--avg"><b>${fmt(r.average)}</b><span>Ø Note</span></div>
+          <div class="lb-stat ${r.average !== null ? 'lb-stat--avg' : ''}"><b>${r.average !== null ? fmt(r.average) : '–'}</b><span>Ø Note</span></div>
         </div>
-      </div>`).join('');
+      </div>`).join('') +
+      (hasRanking ? '' : '<p class="lb-note">Für die bisherigen Abende gibt es keine Wertungen. Sobald Noten und Sieger eingetragen sind, entsteht hier die Rangliste.</p>');
   }
 
   /* ── Hall of Fame ── */
   function renderFame() {
+    if (!fame.length) {
+      $('#podium').outerHTML = `<div id="podium">${emptyState('🏆', 'Das Podest ist noch leer.', 'Sobald Sandwiches Noten bekommen, stehen hier die drei besten aller Zeiten.')}</div>`;
+      return;
+    }
+    const badge = i => `<span class="fame-badge" style="${i === 0 ? '' : `background:${i === 1 ? 'var(--diner-cheddar)' : 'var(--diner-kraft)'};color:var(--diner-black)`}" aria-hidden="true">#${i + 1}</span>`;
     $('#podium').innerHTML = fame.map((s, i) => `
       <div class="podium__place podium__place--${i + 1}">
-        ${sandwichCard(s, {
-          index: i,
-          flag: i === 0 ? '<span class="fame-badge" aria-hidden="true">#1</span>' : `<span class="fame-badge" style="background:${i === 1 ? 'var(--diner-cheddar)' : 'var(--diner-kraft)'};color:var(--diner-black)" aria-hidden="true">#${i + 1}</span>`,
-        })}
+        ${sandwichCard(s, { flag: badge(i) })}
         <div class="podium__block" aria-hidden="true">${i + 1}</div>
       </div>`).join('');
   }
 
   /* ── Hall of Shame ── */
   function renderShame() {
-    $('#shameList').innerHTML = shame.map((s, i) => sandwichCard(s, {
-      index: i + 2,
-      extra: `<div class="shame-note"><b>Tatbestand:</b> ${esc(s.disaster || 'Wurde aus Höflichkeit aufgegessen. Größtenteils.')}</div>`,
+    if (!shame.length) {
+      $('#shameList').outerHTML = `<div id="shameList">${emptyState('🧼', 'Noch keine Schande dokumentiert.', 'Die Akten sind leer. Das wird nicht so bleiben.')}</div>`;
+      return;
+    }
+    $('#shameList').innerHTML = shame.map(s => sandwichCard(s, {
+      extra: s.disaster ? `<div class="shame-note"><b>Tatbestand:</b> ${esc(s.disaster)}</div>` : '',
     })).join('');
   }
 
@@ -285,14 +327,39 @@
   const tilt = i => ['-2deg', '1.5deg', '-1deg', '2deg', '-1.5deg'][i % 5];
 
   function eventHtml(ev) {
-    const host   = person(ev.host);
-    const winner = winnerOf(ev);
-    const wp     = person(winner.creator);
-    const entries = sandwiches.filter(s => s.event === ev).sort((a, b) => b.overall - a.overall);
+    const winner  = winnerOf(ev);
+    const entries = sandwiches.filter(s => s.event === ev)
+      .sort((a, b) => (b.overall ?? -1) - (a.overall ?? -1));
 
-    const judgesOf = s => Object.entries(s.scores)
-      .map(([id, v]) => `<span class="judge" title="${esc(person(id).name)}">${person(id).emoji} <b>${fmt(v)}</b></span>`)
-      .join('');
+    const judgesOf = s => s.scores
+      ? `<div class="judges" aria-label="Einzelwertungen">${Object.entries(s.scores)
+          .map(([id, v]) => `<span class="judge">${esc(person(id).name)} <b>${fmt(v)}</b></span>`).join('')}</div>`
+      : '';
+
+    const facts = [
+      ev.date     && `📅 <b>${fmtDate(ev.date)}</b>`,
+      ev.host     && `🏠 Host: <b>${esc(person(ev.host).name)}</b>`,
+      ev.guest    && `⭐ Gast: <b>${esc(person(ev.guest).name)}</b>`,
+      ev.location && `📍 ${esc(ev.location)}`,
+    ].filter(Boolean);
+
+    const winnerBlock = winner ? `
+      <button class="event-winner" ${hasDetails(winner) ? `data-sandwich="${esc(winner.id)}"` : 'disabled'}>
+        <span class="event-winner__icon" aria-hidden="true">🏆</span>
+        <span>
+          <span class="event-winner__label">Winner Winner Sandwich Dinner</span>
+          <span class="event-winner__name">${esc(nameOf(winner))}</span><br />
+          <span class="event-winner__by">${esc(person(winner.creator).name)}</span>
+        </span>
+        ${scoreBadge(winner.overall)}
+      </button>` : `
+      <div class="event-winner event-winner--empty">
+        <span class="event-winner__icon" aria-hidden="true">❔</span>
+        <span>
+          <span class="event-winner__label">Sieger</span>
+          <span class="event-winner__name">Nicht überliefert</span>
+        </span>
+      </div>`;
 
     return `
       <article class="event ${ev.special ? 'event--special' : ''}" aria-labelledby="ev-${esc(ev.id)}">
@@ -301,60 +368,46 @@
             <span class="event__edition">${esc(ev.edition)}</span>
             <h3 class="event__title" id="ev-${esc(ev.id)}">${esc(ev.title)}</h3>
           </div>
-          <div class="event__facts">
-            <span class="fact">📅 <b>${fmtDate(ev.date)}</b></span>
-            <span class="fact">🏠 Host: <b>${esc(host.name)}</b></span>
-            ${ev.guest ? `<span class="fact">⭐ Gast: <b>${esc(person(ev.guest).name)}</b></span>` : ''}
-            ${ev.location ? `<span class="fact">📍 ${esc(ev.location)}</span>` : ''}
-          </div>
+          ${facts.length ? `<div class="event__facts">${facts.map(f => `<span class="fact">${f}</span>`).join('')}</div>` : ''}
         </header>
 
         <div class="event__body">
           <div>
             <h4 class="sub-title">Sieger des Abends</h4>
-            <button class="event-winner" data-sandwich="${esc(winner.id)}">
-              <span class="event-winner__icon" aria-hidden="true">🏆</span>
-              <span>
-                <span class="event-winner__label">Winner Winner Sandwich Dinner</span>
-                <span class="event-winner__name">${esc(winner.name)}</span><br />
-                <span class="event-winner__by">${wp.emoji} ${esc(wp.name)}</span>
-              </span>
-              ${scoreBadge(winner.overall)}
-            </button>
+            ${winnerBlock}
           </div>
 
+          ${ev.photos?.length ? `
           <div>
             <h4 class="sub-title">Impressionen</h4>
             <div class="gallery">
-              ${(ev.photos || []).map((ph, i) => `
+              ${ev.photos.map((ph, i) => `
                 <figure class="polaroid" style="--tilt:${tilt(i)}">
-                  <div class="polaroid__img">${ph.src
-                    ? `<img src="${esc(ph.src)}" alt="${esc(ph.caption)}" loading="lazy" />`
-                    : `<div class="placeholder" style="--ph-bg:${PH_COLORS[i % PH_COLORS.length]}" aria-hidden="true">${ph.emoji || '📸'}</div>`}</div>
-                  <figcaption>${esc(ph.caption)}</figcaption>
+                  <div class="polaroid__img"><img src="${esc(ph.src)}" alt="${esc(ph.caption || '')}" loading="lazy" /></div>
+                  ${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ''}
                 </figure>`).join('')}
             </div>
-          </div>
+          </div>` : ''}
 
           <div>
-            <h4 class="sub-title">Alle Sandwiches & Wertungen</h4>
+            <h4 class="sub-title">Die Sandwiches</h4>
             <div class="entries">
-              ${entries.map((s, i) => sandwichCard(s, {
-                index: i,
+              ${entries.map(s => sandwichCard(s, {
                 flag: s === winner ? '<span class="winner-flag">★ Sieger</span>' : '',
-                extra: `<div class="judges" aria-label="Einzelwertungen">${judgesOf(s)}</div>`,
+                extra: judgesOf(s),
               })).join('')}
             </div>
           </div>
 
+          ${ev.comments?.length ? `
           <div>
             <h4 class="sub-title">Trashtalk & Zitate</h4>
             <div class="comments">
-              ${(ev.comments || []).map(c => {
+              ${ev.comments.map(c => {
                 const a = person(c.author);
                 return `
                   <div class="comment">
-                    <div class="avatar" style="background:${a.color || '#E4D5BC'}22" aria-hidden="true">${a.emoji}</div>
+                    ${avatar(a)}
                     <div class="comment__bubble">
                       <div class="comment__author">${esc(a.name)}</div>
                       <div class="comment__text">${esc(c.text)}</div>
@@ -362,7 +415,7 @@
                   </div>`;
               }).join('')}
             </div>
-          </div>
+          </div>` : ''}
         </div>
       </article>`;
   }
@@ -373,7 +426,7 @@
     tabs.innerHTML = newestFirst.map((ev, i) => `
       <button class="event-tab ${ev.special ? 'event-tab--special' : ''}" role="tab" id="tab-${esc(ev.id)}"
               aria-selected="${i === 0}" aria-controls="eventList" data-event="${esc(ev.id)}">
-        ${ev.special ? '⭐ ' : ''}${esc(ev.edition)} · ${new Date(ev.date).getFullYear()}
+        ${ev.special ? '⭐ ' : ''}${esc(ev.edition)}${ev.date ? ' · ' + ev.date.slice(0, 4) : ''}
       </button>`).join('');
 
     const show = id => {
@@ -421,62 +474,67 @@
       </svg>`;
   }
 
-  /* ── Detail modal ── */
+  /* ── Detail modal — shows only what's known ── */
   const modal = $('#modal');
   let lastFocus = null;
 
   function openDetail(id) {
     const s = sandwichById[id];
-    if (!s) return;
+    if (!s || !hasDetails(s)) return;
     const p = person(s.creator);
     const won = winnerOf(s.event) === s;
     const rank = byScore.indexOf(s) + 1;
 
+    const statsBlock = s.stats ? `
+      <div class="detail__grid">
+        ${radarSvg(s.stats)}
+        <div class="stats">
+          ${DATA.statAxes.map(a => {
+            const v = s.stats[a.key] || 0;
+            // For heart attack risk, high isn't "good" — keep it orange
+            const cls = a.key === 'heart' ? '' : v >= 8 ? 'is-high' : v <= 3 ? 'is-low' : '';
+            return `
+              <div>
+                <div class="stat__row"><span>${esc(a.label)}</span><span>${v}/10</span></div>
+                <div class="stat__bar"><span class="${cls}" style="width:${v * 10}%"></span></div>
+                <div class="stat__hint">${esc(a.hint)}</div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>` : '';
+
     $('#modalBody').innerHTML = `
       <div class="detail">
-        <div class="detail__photo">${photoOf(s, rank)}</div>
-        <div class="detail__body">
+        ${s.photo ? `<div class="detail__photo"><img src="${esc(s.photo)}" alt="${esc(nameOf(s))}" /></div>` : ''}
+        <div class="detail__body ${s.photo ? '' : 'detail__body--no-photo'}">
           <div class="detail__head">
             <div>
-              <h2 class="detail__name" id="modalTitle">${esc(s.name)}</h2>
-              <p class="detail__meta">${p.emoji} von <b>${esc(p.name)}</b> · ${esc(s.event.edition)}, ${fmtDate(s.event.date)}${won ? ' · 🏆 <b>Sieger des Abends</b>' : ''}</p>
+              <h2 class="detail__name" id="modalTitle">${esc(nameOf(s))}</h2>
+              <p class="detail__meta">von <b>${esc(p.name)}</b> · ${esc(s.event.title)}${s.event.date ? ', ' + fmtDate(s.event.date) : ''}${won ? ' · 🏆 <b>Sieger des Abends</b>' : ''}</p>
             </div>
             ${scoreBadge(s.overall)}
           </div>
 
           ${s.description ? `<p class="detail__desc">${esc(s.description)}</p>` : ''}
 
+          ${s.cube ? `
           <div class="cube-box">
             <b>Cube Rule of Food: ${CUBE_EMOJI[s.cube] || ''} ${esc(s.cube)}</b>
             ${esc(DATA.cubeRule[s.cube] || '')}
-          </div>
+          </div>` : ''}
 
-          <div class="detail__grid">
-            ${radarSvg(s.stats)}
-            <div class="stats">
-              ${DATA.statAxes.map(a => {
-                const v = s.stats[a.key] || 0;
-                // For heart attack risk, high isn't "good" — keep it orange
-                const cls = a.key === 'heart' ? '' : v >= 8 ? 'is-high' : v <= 3 ? 'is-low' : '';
-                return `
-                  <div>
-                    <div class="stat__row"><span>${esc(a.label)}</span><span>${v}/10</span></div>
-                    <div class="stat__bar"><span class="${cls}" style="width:${v * 10}%"></span></div>
-                    <div class="stat__hint">${esc(a.hint)}</div>
-                  </div>`;
-              }).join('')}
-            </div>
-          </div>
+          ${statsBlock}
 
+          ${s.scores ? `
           <div>
             <h3 class="sub-title">Einzelwertungen</h3>
             <div class="judges">
-              ${Object.entries(s.scores).map(([jid, v]) => `<span class="judge">${person(jid).emoji} ${esc(person(jid).name)}: <b>${fmt(v)}</b></span>`).join('')}
+              ${Object.entries(s.scores).map(([jid, v]) => `<span class="judge">${esc(person(jid).name)}: <b>${fmt(v)}</b></span>`).join('')}
             </div>
-          </div>
+          </div>` : ''}
 
           ${s.disaster ? `<div class="shame-note"><b>Tatbestand:</b> ${esc(s.disaster)}</div>` : ''}
-          <p class="pixel-label">Platz ${rank} von ${sandwiches.length} aller Zeiten</p>
+          ${rank ? `<p class="pixel-label">Platz ${rank} von ${rated.length} aller Zeiten</p>` : ''}
         </div>
       </div>`;
 
@@ -486,7 +544,7 @@
     document.body.style.overflow = 'hidden';
     modal.querySelector('.modal__panel').scrollTop = 0;
     modal.querySelector('.modal__close').focus();
-    if (won && winnerOf(latestEvent) === s) sound.fanfare(); else sound.crunch();
+    if (won && champion === s) sound.fanfare(); else sound.crunch();
   }
 
   function closeDetail() {
