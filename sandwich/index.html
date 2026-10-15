@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sandwichabend · Studio Hibari</title>
+  <meta name="robots" content="noindex" />
+  <meta name="description" content="Die offizielle Chronik des jährlichen Sandwichabends. Sieger, Verlierer, Saucen-Skandale." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥪</text></svg>" />
+
+  <!-- Link previews -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:url" content="https://www.hibari.studio/sandwich" />
+  <meta property="og:title" content="Sandwichabend — Die Chronik" />
+  <meta property="og:description" content="Sieger, Verlierer, Saucen-Skandale. Das Archiv des jährlichen Sandwichabends." />
+
+  <!-- Fonts: Archivo Black (headlines), Space Grotesk (text), Press Start 2P (8-bit accents) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/sandwich/sandwich.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="#top" class="logo" aria-label="Sandwichabend — nach oben">
+        <span class="logo__icon" aria-hidden="true">🥪</span>
+        <span class="logo__text">Sandwich<span>abend</span></span>
+      </a>
+
+      <nav class="nav" aria-label="Bereiche">
+        <a href="#leaderboard">Leaderboard</a>
+        <a href="#fame">Fame</a>
+        <a href="#shame">Shame</a>
+        <a href="#chronik">Chronik</a>
+      </nav>
+
+      <button class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="Sound einschalten">
+        <span class="sound-toggle__dot" aria-hidden="true"></span>
+        <span class="sound-toggle__label">Sound <b id="soundState">OFF</b></span>
+      </button>
+    </div>
+
+    <!-- 2005-style news ticker -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker__track" id="ticker"></div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===== HERO ===== -->
+    <section class="hero wrap" id="top">
+      <div class="hero__copy">
+        <p class="pixel-label">★ Seit 2024 ★ 3 Freunde ★ 0 Diäten ★</p>
+        <h1 class="hero__title">Der jährliche<br /><span class="hero__title-mark">Sandwich</span>abend</h1>
+        <p class="hero__sub">Drei Freunde. Ein Abend im Jahr. Brot, Belag und gekränkte Egos. Hier steht, wer gewonnen hat, wer verloren hat und wer mit dem Löffel essen musste.</p>
+        <div class="hero__links">
+          <a href="#fame" class="btn btn--ketchup">🏆 Hall of Fame</a>
+          <a href="#shame" class="btn btn--white">☠️ Hall of Shame</a>
+        </div>
+      </div>
+
+      <div class="champion" id="champion"></div>
+    </section>
+
+    <!-- ===== LEADERBOARD ===== -->
+    <section class="section wrap" id="leaderboard">
+      <div class="section__head">
+        <p class="pixel-label">Level 1</p>
+        <h2 class="section__title">All-Time Leaderboard</h2>
+        <p class="section__sub">Nur die drei Stammgäste. Gäste kommen und gehen, der Ruhm bleibt hier.</p>
+      </div>
+      <div class="leaderboard" id="leaderboardList"></div>
+    </section>
+
+    <!-- ===== HALL OF FAME ===== -->
+    <section class="section wrap" id="fame">
+      <div class="section__head">
+        <p class="pixel-label">Level 2</p>
+        <h2 class="section__title">Hall of Fame</h2>
+        <p class="section__sub">Die drei bestbewerteten Sandwiches aller Zeiten. Ehre, wem Ehre gebührt.</p>
+      </div>
+      <div class="podium" id="podium"></div>
+    </section>
+
+    <!-- ===== HALL OF SHAME ===== -->
+    <section class="section section--shame" id="shame">
+      <div class="caution-tape" aria-hidden="true"><span>⚠ ACHTUNG ⚠ KULINARISCHES SPERRGEBIET ⚠ ACHTUNG ⚠ KULINARISCHES SPERRGEBIET ⚠ ACHTUNG ⚠ KULINARISCHES SPERRGEBIET ⚠</span></div>
+      <div class="wrap">
+        <div class="section__head">
+          <p class="pixel-label">Game Over</p>
+          <h2 class="section__title">Hall of Shame</h2>
+          <p class="shame-warning">⚠️ <b>Warnhinweis:</b> Die folgenden Inhalte können Appetitlosigkeit, Fremdscham und spontanes Lachen auslösen. Nicht vor dem Essen ansehen.</p>
+        </div>
+        <div class="shame-grid" id="shameList"></div>
+      </div>
+      <div class="caution-tape caution-tape--bottom" aria-hidden="true"><span>⚠ ACHTUNG ⚠ KULINARISCHES SPERRGEBIET ⚠ ACHTUNG ⚠ KULINARISCHES SPERRGEBIET ⚠ ACHTUNG ⚠ KULINARISCHES SPERRGEBIET ⚠</span></div>
+    </section>
+
+    <!-- ===== CHRONIK ===== -->
+    <section class="section wrap" id="chronik">
+      <div class="section__head">
+        <p class="pixel-label">Save Files</p>
+        <h2 class="section__title">Die Chronik</h2>
+        <p class="section__sub">Alle Abende, alle Sandwiches, alle Wertungen. Neueste zuerst.</p>
+      </div>
+      <div class="event-tabs" id="eventTabs" role="tablist" aria-label="Abende"></div>
+      <div id="eventList"></div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div class="footer__badges" aria-hidden="true">
+        <span class="badge-88">Best viewed in 1024×768</span>
+        <span class="badge-88 badge-88--ketchup">100% Brot-zertifiziert</span>
+        <span class="badge-88 badge-88--pickle">Kein Online-Voting</span>
+      </div>
+      <p class="footer__counter">Du bist Besucher Nr. <span class="counter" id="visitorCounter">000000</span></p>
+      <p class="footer__note">Abgestimmt wird live am Abend. Diese Seite ist nur das Archiv der Wahrheit.</p>
+      <p class="footer__note"><a href="/">← zurück zu hibari.studio</a></p>
+    </div>
+  </footer>
+
+  <!-- ===== SANDWICH DETAIL ===== -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__close" data-close aria-label="Schließen">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="/sandwich/sandwich-data.js"></script>
+  <script src="/sandwich/sandwich.js"></script>
+</body>
+</html>
