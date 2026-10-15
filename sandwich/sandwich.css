@@ -1102,12 +1102,27 @@ img { display: block; max-width: 100%; }
 }
 
 /* ===== LEADERBOARD — wins column chart ===== */
+/* List and chart side by side; chart stacks below the list on narrow screens */
+.lb-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .lb-layout { grid-template-columns: minmax(0, 1fr); }
+  .lb-layout .lb-chart { width: 100%; max-width: 340px; }
+}
+@media (max-width: 560px) {
+  .lb-layout .lb-chart { max-width: none; }
+}
+
 .lb-chart {
-  --axis: 34px;      /* y-axis label column */
-  --plot-h: 240px;
+  --axis: 26px;      /* y-axis label column */
+  --plot-h: 140px;
   position: relative;
-  margin-bottom: 22px;
-  padding: 18px 20px 16px;
+  margin: 0;
+  padding: 14px 16px 12px;
   background: var(--diner-card);
   border: var(--border);
   border-radius: var(--radius-lg);
@@ -1115,14 +1130,14 @@ img { display: block; max-width: 100%; }
 }
 .lb-chart__title {
   font-family: var(--font-display);
-  font-size: 1.05rem;
-  margin-bottom: 18px;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
 }
 
 .lb-chart__plot {
   position: relative;
   height: var(--plot-h);
-  margin-top: 26px;            /* room for the value above the tallest column */
+  margin-top: 22px;            /* room for the value above the tallest column */
 }
 
 /* Recessive horizontal grid + whole-number ticks */
@@ -1140,7 +1155,7 @@ img { display: block; max-width: 100%; }
 .lb-chart__tick:first-child { border-bottom: 2px solid var(--diner-black); }   /* baseline */
 .lb-chart__tick i {
   position: absolute;
-  right: calc(100% + 10px);
+  right: calc(100% + 8px);
   bottom: 0;
   transform: translateY(50%);
   font-style: normal;
@@ -1153,8 +1168,8 @@ img { display: block; max-width: 100%; }
 .lb-chart__names {
   display: grid;
   grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
-  gap: clamp(10px, 3vw, 28px);
-  padding-inline: clamp(8px, 3vw, 28px);
+  gap: 12px;
+  padding-inline: 8px;
 }
 .lb-chart__cols {
   position: absolute;
@@ -1177,14 +1192,14 @@ img { display: block; max-width: 100%; }
 .lb-col__value {
   /* Sits just above the column top, outside the flow so heights stay proportional */
   position: absolute;
-  bottom: calc(var(--h) + 6px);
+  bottom: calc(var(--h) + 5px);
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1rem;
   line-height: 1;
   color: var(--diner-black);
 }
 .lb-col__fill {
-  width: min(100%, 150px);
+  width: 100%;
   height: var(--h);
   background: var(--c);
   border: var(--border);
@@ -1199,15 +1214,15 @@ img { display: block; max-width: 100%; }
 .lb-col:nth-child(3) .lb-col__fill { animation-delay: 0.4s; }
 .lb-col[style*="--h:0%"] .lb-col__fill { border: none; }   /* zero wins: no stub */
 .lb-col:hover .lb-col__fill,
-.lb-col:focus-visible .lb-col__fill { box-shadow: 4px 0 0 var(--diner-black); }
+.lb-col:focus-visible .lb-col__fill { box-shadow: 3px 0 0 var(--diner-black); }
 @keyframes col-grow { from { transform: scaleY(0); } }
 
 .lb-chart__names {
   margin-left: var(--axis);
-  margin-top: 10px;
+  margin-top: 8px;
   text-align: center;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 .lb-chart__names span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -1225,7 +1240,3 @@ img { display: block; max-width: 100%; }
   box-shadow: 3px 3px 0 var(--diner-ketchup);
 }
 
-@media (max-width: 560px) {
-  .lb-chart { --axis: 26px; --plot-h: 200px; padding: 16px 14px 14px; }
-  .lb-chart__names { font-size: 0.85rem; }
-}

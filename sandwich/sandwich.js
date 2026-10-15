@@ -652,16 +652,33 @@
     }
   });
 
-  /* ── 2005 visitor counter (per browser, purely for nostalgia) ──
-     Counts from 0. The key was renamed to reset everyone's count. */
-  function renderCounter() {
-    let visits = 1;
+  /* ── 2005 visitor counter — shared via /api/counter ──
+     Each browser is counted once (anonymous id in localStorage);
+     the counter shows all visitors so far. */
+  async function renderCounter() {
+    const el = $('#visitorCounter');
+    let visitor = null;
     try {
-      visits = (parseInt(localStorage.getItem('sandwichVisitCount'), 10) || 0) + 1;
-      localStorage.setItem('sandwichVisitCount', visits);
-      localStorage.removeItem('sandwichVisits');   // old counter
+      visitor = localStorage.getItem('sandwichVisitor');
+      if (!visitor) { visitor = crypto.randomUUID(); localStorage.setItem('sandwichVisitor', visitor); }
+      localStorage.removeItem('sandwichVisitCount');   // old per-browser counters
+      localStorage.removeItem('sandwichVisits');
     } catch (e) {}
-    $('#visitorCounter').textContent = String(visits).padStart(6, '0');
+
+    try {
+      const res = visitor
+        ? await fetch('/api/counter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ page: 'sandwich', visitor }),
+          })
+        : await fetch('/api/counter?page=sandwich');   // no storage: show, don't count
+      if (!res.ok) throw new Error(res.status);
+      const { count } = await res.json();
+      el.textContent = String(count).padStart(6, '0');
+    } catch (e) {
+      el.textContent = '??????';
+    }
   }
 
   /* ── Go ── */

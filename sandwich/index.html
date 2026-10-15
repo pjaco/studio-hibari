@@ -75,8 +75,10 @@
         <h2 class="section__title">All-Time Leaderboard</h2>
         <p class="section__sub">Nur die drei Stammgäste. Gäste kommen und gehen, der Ruhm bleibt hier.</p>
       </div>
-      <figure class="lb-chart" id="leaderboardChart"></figure>
-      <div class="leaderboard" id="leaderboardList"></div>
+      <div class="lb-layout">
+        <div class="leaderboard" id="leaderboardList"></div>
+        <figure class="lb-chart" id="leaderboardChart"></figure>
+      </div>
     </section>
 
     <!-- ===== HALL OF FAME ===== -->
@@ -139,7 +141,7 @@
         <span class="badge-88 badge-88--ketchup">100% Brot-zertifiziert</span>
         <span class="badge-88 badge-88--pickle">Kein Online-Voting</span>
       </div>
-      <p class="footer__counter">Du bist Besucher Nr. <span class="counter" id="visitorCounter">000000</span></p>
+      <p class="footer__counter">Du bist Besucher Nr. <span class="counter" id="visitorCounter" aria-live="polite">------</span></p>
       <p class="footer__note">Abgestimmt wird live am Abend. Diese Seite ist nur das Archiv der Wahrheit.</p>
       <p class="footer__note"><a href="/">← zurück zu hibari.studio</a></p>
     </div>
