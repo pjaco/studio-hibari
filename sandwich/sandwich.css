@@ -404,7 +404,7 @@ img { display: block; max-width: 100%; }
 
 .lb-row {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) repeat(3, minmax(84px, auto));
+  grid-template-columns: auto auto minmax(0, 1fr) repeat(2, minmax(84px, auto));
   align-items: center;
   gap: 16px;
   padding: 14px 18px;
@@ -445,10 +445,78 @@ img { display: block; max-width: 100%; }
     grid-template-columns: auto auto minmax(0, 1fr);
     gap: 12px;
   }
-  .lb-stats { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .lb-stats { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .lb-rank { width: auto; font-size: 0.8rem; }
 }
 @media (min-width: 681px) { .lb-stats { display: contents; } }
+
+/* ===== HOUSE RULES — diner menu board ===== */
+.rules {
+  list-style: none;
+  display: grid;
+  gap: 16px;
+  max-width: 820px;
+}
+
+.rule {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+  padding: 18px 20px;
+  background: var(--diner-card);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.rule__no {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--diner-black);
+  color: var(--diner-cheddar);
+  /* Display font: the pixel font draws § like a $ */
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  transform: rotate(-3deg);
+}
+
+.rule__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-bottom: 6px;
+}
+.rule__title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; line-height: 1.15; }
+.rule__since {
+  padding: 2px 10px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--diner-cheddar);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rule__text { font-size: 0.98rem; }
+.rule__reason {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-left: 4px solid var(--diner-ketchup);
+  background: var(--diner-bg);
+  font-size: 0.88rem;
+}
+.rule__reason b { color: var(--diner-ketchup); }
+
+@media (max-width: 560px) {
+  .rule { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .rule__no { width: 44px; height: 44px; font-size: 1.05rem; }
+}
 
 /* ===== HALL OF FAME — PODIUM ===== */
 .podium {
@@ -1031,4 +1099,133 @@ img { display: block; max-width: 100%; }
   font-size: 1.9em;
   line-height: 0;
   vertical-align: -0.12em;
+}
+
+/* ===== LEADERBOARD — wins bar chart ===== */
+.lb-chart {
+  --label: 84px;   /* name column */
+  --gap: 14px;
+  --end: 44px;     /* room for the value label right of the longest bar */
+  position: relative;
+  margin-bottom: 22px;
+  padding: 18px 20px 34px;
+  background: var(--diner-card);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.lb-chart__title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-bottom: 14px;
+}
+
+.lb-chart__plot {
+  position: relative;
+  display: grid;
+  gap: 10px;
+}
+
+/* Recessive vertical grid + whole-number ticks, aligned with the bar track */
+.lb-chart__grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--label) + var(--gap));
+  right: var(--end);
+  pointer-events: none;
+}
+.lb-chart__tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed rgba(26, 26, 26, 0.18);
+}
+.lb-chart__tick:first-child { border-left: 2px solid var(--diner-black); }   /* baseline */
+.lb-chart__tick i {
+  position: absolute;
+  bottom: -22px;
+  left: 0;
+  transform: translateX(-50%);
+  font-style: normal;
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  color: rgba(26, 26, 26, 0.6);
+}
+
+.lb-bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--label) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--gap);
+  min-height: 40px;           /* hit target bigger than the bar */
+  border-radius: var(--radius);
+  outline-offset: 2px;
+  cursor: default;
+}
+.lb-bar:hover .lb-bar__label,
+.lb-bar:focus-visible .lb-bar__label { text-decoration: underline; text-decoration-thickness: 2px; }
+
+.lb-bar__label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-bar__track {
+  position: relative;
+  height: 30px;
+  margin-right: var(--end);
+}
+.lb-bar__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--w);
+  background: var(--c);
+  border: var(--border);
+  border-left: none;                 /* bar sits on the baseline */
+  border-radius: 0 4px 4px 0;        /* rounded data end only */
+  /* Grows in on load; always ends at full width, no trigger needed */
+  animation: bar-grow 0.9s var(--spring) 0.2s backwards;
+}
+.lb-bar:nth-child(3) .lb-bar__fill { animation-delay: 0.3s; }
+.lb-bar:nth-child(4) .lb-bar__fill { animation-delay: 0.4s; }
+@keyframes bar-grow { from { width: 0; } }
+.lb-bar__fill[style*="--w:0%"] { border: none; }   /* zero wins: no stub */
+.lb-bar:hover .lb-bar__fill,
+.lb-bar:focus-visible .lb-bar__fill { box-shadow: 3px 3px 0 var(--diner-black); }
+
+.lb-bar__value {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--w) + 8px);
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--diner-black);
+}
+
+.lb-chart__tip {
+  position: absolute;
+  z-index: 5;
+  max-width: min(320px, calc(100% - 16px));
+  padding: 6px 10px;
+  background: var(--diner-black);
+  color: var(--diner-bg);
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-weight: 500;
+  pointer-events: none;
+  box-shadow: 3px 3px 0 var(--diner-ketchup);
+}
+
+@media (max-width: 560px) {
+  .lb-chart { --label: 64px; --gap: 10px; padding: 16px 14px 32px; }
+  .lb-bar__label { font-size: 0.85rem; }
 }

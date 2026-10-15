@@ -22,10 +22,12 @@
    ===================================================== */
 
 window.SANDWICH_DATA = {
+  // Each person keeps their colour everywhere (avatars, charts).
+  // Green / yellow / red were checked for colour-blind separation.
   people: [
-    { id: 'thomas',   name: 'Thomas',   color: '#D92525' },
-    { id: 'leon',     name: 'Leon',     color: '#FF9F1C' },
-    { id: 'nils',     name: 'Nils',     color: '#2B8255' },
+    { id: 'thomas',   name: 'Thomas',   color: '#2B8255' },  // green (Pickle)
+    { id: 'leon',     name: 'Leon',     color: '#E0A800' },  // yellow (mustard)
+    { id: 'nils',     name: 'Nils',     color: '#D92525' },  // red (Ketchup)
     { id: 'jeanette', name: 'Jeanette', color: '#E4D5BC', guest: true },
   ],
 
@@ -49,6 +51,16 @@ window.SANDWICH_DATA = {
     Calzone:  'Rundum in Stärke gehüllt.',
     Cake:     'Stärke oben, unten, irgendwie überall. Fragwürdig.',
   },
+
+  // House rules, in the order they were introduced. since / reason are optional.
+  rules: [
+    {
+      title: 'Kein Sandwich doppelt',
+      text: 'Jedes Sandwich darf nur einmal antreten. Wer schon mit einem Sandwich angetreten ist, muss sich etwas Neues einfallen lassen.',
+      since: 2026,
+      reason: 'Nils hat 2024 und 2025 beide Male mit seinem Tuna-Sandwich gewonnen.',
+    },
+  ],
 
   // Oldest first. Known: the winners. TODO: the other sandwich names (and anything else you remember).
   events: [

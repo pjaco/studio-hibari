@@ -59,7 +59,6 @@
     return {
       person: p,
       wins: events.filter(ev => winnerOf(ev)?.creator === p.id).length,
-      entries: new Set(own.map(s => s.event.id)).size,
       average: avg(own.filter(s => s.overall !== null).map(s => s.overall)),
     };
   }).sort((a, b) => b.wins - a.wins || (b.average ?? -1) - (a.average ?? -1));
@@ -291,11 +290,79 @@
         </div>
         <div class="lb-stats">
           <div class="lb-stat lb-stat--wins"><b>${r.wins}</b><span>Siege</span></div>
-          <div class="lb-stat"><b>${r.entries}</b><span>Teilnahmen</span></div>
           <div class="lb-stat ${r.average !== null ? 'lb-stat--avg' : ''}"><b>${r.average !== null ? fmt(r.average) : '–'}</b><span>Ø Note</span></div>
         </div>
       </div>`).join('') +
       (hasRanking ? '' : '<p class="lb-note">Für die bisherigen Abende gibt es keine Wertungen. Sobald Noten und Sieger eingetragen sind, entsteht hier die Rangliste.</p>');
+  }
+
+  /* ── Wins bar chart — one bar per regular, coloured by person ── */
+  function renderWinsChart() {
+    const chart = $('#leaderboardChart');
+    const max   = Math.max(1, ...leaderboard.map(r => r.wins));
+    const ticks = Array.from({ length: max + 1 }, (_, i) => i);   // whole wins only
+    const pct   = n => (n / max) * 100;
+
+    // Which evenings someone won, for the tooltip
+    const winsOf = p => events
+      .filter(ev => winnerOf(ev)?.creator === p.id)
+      .map(ev => `${ev.edition}${winnerOf(ev).name ? ` (${winnerOf(ev).name})` : ''}`);
+
+    chart.innerHTML = `
+      <figcaption class="lb-chart__title">Siege aller Zeiten</figcaption>
+      <div class="lb-chart__plot" role="list">
+        <div class="lb-chart__grid" aria-hidden="true">
+          ${ticks.map(t => `<span class="lb-chart__tick" style="left:${pct(t)}%"><i>${t}</i></span>`).join('')}
+        </div>
+        ${leaderboard.map(r => {
+          const list = winsOf(r.person);
+          const text = `${r.person.name}: ${r.wins} ${r.wins === 1 ? 'Sieg' : 'Siege'}${list.length ? ' · ' + list.join(', ') : ''}`;
+          return `
+            <div class="lb-bar" role="listitem" tabindex="0" aria-label="${esc(text)}" data-tip="${esc(text)}">
+              <span class="lb-bar__label">${esc(r.person.name)}</span>
+              <span class="lb-bar__track">
+                <span class="lb-bar__fill" style="--w:${pct(r.wins)}%;--c:${r.person.color}"></span>
+                <span class="lb-bar__value" style="--w:${pct(r.wins)}%">${r.wins}</span>
+              </span>
+            </div>`;
+        }).join('')}
+      </div>
+      <div class="lb-chart__tip" role="tooltip" hidden></div>`;
+
+    // Hover / focus tooltip, positioned above the hovered bar
+    const tip = chart.querySelector('.lb-chart__tip');
+    const show = bar => {
+      tip.textContent = bar.dataset.tip;
+      tip.hidden = false;
+      const c = chart.getBoundingClientRect();
+      const f = bar.querySelector('.lb-bar__track').getBoundingClientRect();
+      tip.style.left = `${Math.min(f.left - c.left + 8, c.width - tip.offsetWidth - 8)}px`;
+      tip.style.top  = `${f.top - c.top - tip.offsetHeight - 8}px`;
+    };
+    const hide = () => { tip.hidden = true; };
+    chart.querySelectorAll('.lb-bar').forEach(bar => {
+      bar.addEventListener('mouseenter', () => show(bar));
+      bar.addEventListener('focus', () => show(bar));
+      bar.addEventListener('mouseleave', hide);
+      bar.addEventListener('blur', hide);
+    });
+  }
+
+  /* ── House rules ── */
+  function renderRules() {
+    const rules = DATA.rules || [];
+    $('#rulesList').innerHTML = rules.map((r, i) => `
+      <li class="rule">
+        <span class="rule__no" aria-hidden="true">§${i + 1}</span>
+        <div class="rule__body">
+          <div class="rule__head">
+            <h3 class="rule__title">${esc(r.title)}</h3>
+            ${r.since ? `<span class="rule__since">Seit ${esc(r.since)}</span>` : ''}
+          </div>
+          <p class="rule__text">${esc(r.text)}</p>
+          ${r.reason ? `<p class="rule__reason"><b>Warum?</b> ${esc(r.reason)}</p>` : ''}
+        </div>
+      </li>`).join('');
   }
 
   /* ── Hall of Fame ── */
@@ -595,6 +662,8 @@
   renderTicker();
   renderChampion();
   renderLeaderboard();
+  renderWinsChart();
+  renderRules();
   renderFame();
   renderShame();
   renderChronik();
