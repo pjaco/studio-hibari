@@ -296,7 +296,7 @@
       (hasRanking ? '' : '<p class="lb-note">Für die bisherigen Abende gibt es keine Wertungen. Sobald Noten und Sieger eingetragen sind, entsteht hier die Rangliste.</p>');
   }
 
-  /* ── Wins bar chart — one bar per regular, coloured by person ── */
+  /* ── Wins column chart — one column per regular, coloured by person ── */
   function renderWinsChart() {
     const chart = $('#leaderboardChart');
     const max   = Math.max(1, ...leaderboard.map(r => r.wins));
@@ -308,43 +308,47 @@
       .filter(ev => winnerOf(ev)?.creator === p.id)
       .map(ev => `${ev.edition}${winnerOf(ev).name ? ` (${winnerOf(ev).name})` : ''}`);
 
+    chart.style.setProperty('--cols', leaderboard.length);
     chart.innerHTML = `
       <figcaption class="lb-chart__title">Siege aller Zeiten</figcaption>
-      <div class="lb-chart__plot" role="list">
+      <div class="lb-chart__plot">
         <div class="lb-chart__grid" aria-hidden="true">
-          ${ticks.map(t => `<span class="lb-chart__tick" style="left:${pct(t)}%"><i>${t}</i></span>`).join('')}
+          ${ticks.map(t => `<span class="lb-chart__tick" style="bottom:${pct(t)}%"><i>${t}</i></span>`).join('')}
         </div>
-        ${leaderboard.map(r => {
-          const list = winsOf(r.person);
-          const text = `${r.person.name}: ${r.wins} ${r.wins === 1 ? 'Sieg' : 'Siege'}${list.length ? ' · ' + list.join(', ') : ''}`;
-          return `
-            <div class="lb-bar" role="listitem" tabindex="0" aria-label="${esc(text)}" data-tip="${esc(text)}">
-              <span class="lb-bar__label">${esc(r.person.name)}</span>
-              <span class="lb-bar__track">
-                <span class="lb-bar__fill" style="--w:${pct(r.wins)}%;--c:${r.person.color}"></span>
-                <span class="lb-bar__value" style="--w:${pct(r.wins)}%">${r.wins}</span>
-              </span>
-            </div>`;
-        }).join('')}
+        <div class="lb-chart__cols" role="list">
+          ${leaderboard.map(r => {
+            const list = winsOf(r.person);
+            const text = `${r.person.name}: ${r.wins} ${r.wins === 1 ? 'Sieg' : 'Siege'}${list.length ? ' · ' + list.join(', ') : ''}`;
+            return `
+              <div class="lb-col" style="--h:${pct(r.wins)}%;--c:${r.person.color}" role="listitem" tabindex="0" aria-label="${esc(text)}" data-tip="${esc(text)}">
+                <span class="lb-col__value">${r.wins}</span>
+                <span class="lb-col__fill"></span>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="lb-chart__names" aria-hidden="true">
+        ${leaderboard.map(r => `<span>${esc(r.person.name)}</span>`).join('')}
       </div>
       <div class="lb-chart__tip" role="tooltip" hidden></div>`;
 
-    // Hover / focus tooltip, positioned above the hovered bar
+    // Hover / focus tooltip, centred above the hovered column
     const tip = chart.querySelector('.lb-chart__tip');
-    const show = bar => {
-      tip.textContent = bar.dataset.tip;
+    const show = col => {
+      tip.textContent = col.dataset.tip;
       tip.hidden = false;
       const c = chart.getBoundingClientRect();
-      const f = bar.querySelector('.lb-bar__track').getBoundingClientRect();
-      tip.style.left = `${Math.min(f.left - c.left + 8, c.width - tip.offsetWidth - 8)}px`;
-      tip.style.top  = `${f.top - c.top - tip.offsetHeight - 8}px`;
+      const v = col.querySelector('.lb-col__value').getBoundingClientRect();
+      const left = v.left + v.width / 2 - c.left - tip.offsetWidth / 2;
+      tip.style.left = `${Math.max(8, Math.min(left, c.width - tip.offsetWidth - 8))}px`;
+      tip.style.top  = `${v.top - c.top - tip.offsetHeight - 6}px`;
     };
     const hide = () => { tip.hidden = true; };
-    chart.querySelectorAll('.lb-bar').forEach(bar => {
-      bar.addEventListener('mouseenter', () => show(bar));
-      bar.addEventListener('focus', () => show(bar));
-      bar.addEventListener('mouseleave', hide);
-      bar.addEventListener('blur', hide);
+    chart.querySelectorAll('.lb-col').forEach(col => {
+      col.addEventListener('mouseenter', () => show(col));
+      col.addEventListener('focus', () => show(col));
+      col.addEventListener('mouseleave', hide);
+      col.addEventListener('blur', hide);
     });
   }
 
@@ -648,14 +652,16 @@
     }
   });
 
-  /* ── 2005 visitor counter (per browser, purely for nostalgia) ── */
+  /* ── 2005 visitor counter (per browser, purely for nostalgia) ──
+     Counts from 0. The key was renamed to reset everyone's count. */
   function renderCounter() {
     let visits = 1;
     try {
-      visits = (parseInt(localStorage.getItem('sandwichVisits'), 10) || 0) + 1;
-      localStorage.setItem('sandwichVisits', visits);
+      visits = (parseInt(localStorage.getItem('sandwichVisitCount'), 10) || 0) + 1;
+      localStorage.setItem('sandwichVisitCount', visits);
+      localStorage.removeItem('sandwichVisits');   // old counter
     } catch (e) {}
-    $('#visitorCounter').textContent = String(1336 + visits).padStart(6, '0');
+    $('#visitorCounter').textContent = String(visits).padStart(6, '0');
   }
 
   /* ── Go ── */

@@ -1101,14 +1101,13 @@ img { display: block; max-width: 100%; }
   vertical-align: -0.12em;
 }
 
-/* ===== LEADERBOARD — wins bar chart ===== */
+/* ===== LEADERBOARD — wins column chart ===== */
 .lb-chart {
-  --label: 84px;   /* name column */
-  --gap: 14px;
-  --end: 44px;     /* room for the value label right of the longest bar */
+  --axis: 34px;      /* y-axis label column */
+  --plot-h: 240px;
   position: relative;
   margin-bottom: 22px;
-  padding: 18px 20px 34px;
+  padding: 18px 20px 16px;
   background: var(--diner-card);
   border: var(--border);
   border-radius: var(--radius-lg);
@@ -1117,99 +1116,100 @@ img { display: block; max-width: 100%; }
 .lb-chart__title {
   font-family: var(--font-display);
   font-size: 1.05rem;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .lb-chart__plot {
   position: relative;
-  display: grid;
-  gap: 10px;
+  height: var(--plot-h);
+  margin-top: 26px;            /* room for the value above the tallest column */
 }
 
-/* Recessive vertical grid + whole-number ticks, aligned with the bar track */
+/* Recessive horizontal grid + whole-number ticks */
 .lb-chart__grid {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--label) + var(--gap));
-  right: var(--end);
+  inset: 0 0 0 var(--axis);
   pointer-events: none;
 }
 .lb-chart__tick {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  border-left: 1px dashed rgba(26, 26, 26, 0.18);
+  left: 0;
+  right: 0;
+  border-bottom: 1px dashed rgba(26, 26, 26, 0.18);
 }
-.lb-chart__tick:first-child { border-left: 2px solid var(--diner-black); }   /* baseline */
+.lb-chart__tick:first-child { border-bottom: 2px solid var(--diner-black); }   /* baseline */
 .lb-chart__tick i {
   position: absolute;
-  bottom: -22px;
-  left: 0;
-  transform: translateX(-50%);
+  right: calc(100% + 10px);
+  bottom: 0;
+  transform: translateY(50%);
   font-style: normal;
   font-family: var(--font-pixel);
   font-size: 0.55rem;
   color: rgba(26, 26, 26, 0.6);
 }
 
-.lb-bar {
-  position: relative;
+.lb-chart__cols,
+.lb-chart__names {
   display: grid;
-  grid-template-columns: var(--label) minmax(0, 1fr);
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: clamp(10px, 3vw, 28px);
+  padding-inline: clamp(8px, 3vw, 28px);
+}
+.lb-chart__cols {
+  position: absolute;
+  inset: 0 0 0 var(--axis);
+  align-items: end;
+}
+
+/* One column = the whole slot is the hit target, bigger than the mark */
+.lb-col {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  gap: var(--gap);
-  min-height: 40px;           /* hit target bigger than the bar */
   border-radius: var(--radius);
   outline-offset: 2px;
   cursor: default;
 }
-.lb-bar:hover .lb-bar__label,
-.lb-bar:focus-visible .lb-bar__label { text-decoration: underline; text-decoration-thickness: 2px; }
-
-.lb-bar__label {
-  font-weight: 700;
-  font-size: 0.95rem;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.lb-bar__track {
-  position: relative;
-  height: 30px;
-  margin-right: var(--end);
-}
-.lb-bar__fill {
+.lb-col__value {
+  /* Sits just above the column top, outside the flow so heights stay proportional */
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: var(--w);
-  background: var(--c);
-  border: var(--border);
-  border-left: none;                 /* bar sits on the baseline */
-  border-radius: 0 4px 4px 0;        /* rounded data end only */
-  /* Grows in on load; always ends at full width, no trigger needed */
-  animation: bar-grow 0.9s var(--spring) 0.2s backwards;
-}
-.lb-bar:nth-child(3) .lb-bar__fill { animation-delay: 0.3s; }
-.lb-bar:nth-child(4) .lb-bar__fill { animation-delay: 0.4s; }
-@keyframes bar-grow { from { width: 0; } }
-.lb-bar__fill[style*="--w:0%"] { border: none; }   /* zero wins: no stub */
-.lb-bar:hover .lb-bar__fill,
-.lb-bar:focus-visible .lb-bar__fill { box-shadow: 3px 3px 0 var(--diner-black); }
-
-.lb-bar__value {
-  position: absolute;
-  top: 50%;
-  left: calc(var(--w) + 8px);
-  transform: translateY(-50%);
+  bottom: calc(var(--h) + 6px);
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.3rem;
+  line-height: 1;
   color: var(--diner-black);
 }
+.lb-col__fill {
+  width: min(100%, 150px);
+  height: var(--h);
+  background: var(--c);
+  border: var(--border);
+  border-bottom: none;               /* column stands on the baseline */
+  border-radius: 6px 6px 0 0;        /* rounded data end only */
+  transform-origin: bottom;
+  /* Grows in on load; always ends at full height, no trigger needed */
+  animation: col-grow 0.9s var(--spring) 0.2s backwards;
+  transition: box-shadow 0.15s ease;
+}
+.lb-col:nth-child(2) .lb-col__fill { animation-delay: 0.3s; }
+.lb-col:nth-child(3) .lb-col__fill { animation-delay: 0.4s; }
+.lb-col[style*="--h:0%"] .lb-col__fill { border: none; }   /* zero wins: no stub */
+.lb-col:hover .lb-col__fill,
+.lb-col:focus-visible .lb-col__fill { box-shadow: 4px 0 0 var(--diner-black); }
+@keyframes col-grow { from { transform: scaleY(0); } }
+
+.lb-chart__names {
+  margin-left: var(--axis);
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.lb-chart__names span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .lb-chart__tip {
   position: absolute;
@@ -1226,6 +1226,6 @@ img { display: block; max-width: 100%; }
 }
 
 @media (max-width: 560px) {
-  .lb-chart { --label: 64px; --gap: 10px; padding: 16px 14px 32px; }
-  .lb-bar__label { font-size: 0.85rem; }
+  .lb-chart { --axis: 26px; --plot-h: 200px; padding: 16px 14px 14px; }
+  .lb-chart__names { font-size: 0.85rem; }
 }
