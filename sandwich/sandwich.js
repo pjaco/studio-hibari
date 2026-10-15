@@ -328,8 +328,9 @@
 
   function eventHtml(ev) {
     const winner  = winnerOf(ev);
+    // Winner first, then by score
     const entries = sandwiches.filter(s => s.event === ev)
-      .sort((a, b) => (b.overall ?? -1) - (a.overall ?? -1));
+      .sort((a, b) => (b === winner) - (a === winner) || (b.overall ?? -1) - (a.overall ?? -1));
 
     const judgesOf = s => s.scores
       ? `<div class="judges" aria-label="Einzelwertungen">${Object.entries(s.scores)

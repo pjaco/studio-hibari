@@ -50,39 +50,42 @@ window.SANDWICH_DATA = {
     Cake:     'Stärke oben, unten, irgendwie überall. Fragwürdig.',
   },
 
-  // Oldest first. TODO: fill in sandwich names (and anything else you remember).
+  // Oldest first. Known: the winners. TODO: the other sandwich names (and anything else you remember).
   events: [
     {
       id: 'ed1',
-      edition: 'Edition #1',
-      title: 'Sandwichabend #1',
+      edition: '2024',
+      title: 'Sandwichabend 2024',
+      winner: 'ed1-nils',
       sandwiches: [
-        { id: 'ed1-thomas', name: null, creator: 'thomas' },
-        { id: 'ed1-leon',   name: null, creator: 'leon' },
-        { id: 'ed1-nils',   name: null, creator: 'nils' },
-      ],
-    },
-    {
-      id: 'ed2',
-      edition: 'Edition #2',
-      title: 'Sandwichabend #2',
-      sandwiches: [
-        { id: 'ed2-thomas', name: null, creator: 'thomas' },
-        { id: 'ed2-leon',   name: null, creator: 'leon' },
-        { id: 'ed2-nils',   name: null, creator: 'nils' },
+        { id: 'ed1-thomas', name: null,            creator: 'thomas' },
+        { id: 'ed1-leon',   name: null,            creator: 'leon' },
+        { id: 'ed1-nils',   name: 'Tuna-Sandwich', creator: 'nils' },
       ],
     },
     {
       id: 'spezial1',
-      edition: 'Spezial',
-      title: 'Sandwichabend Spezial',
+      edition: '2025 · Gast-Edition',
+      title: 'Sandwichabend 2025 · Gast-Edition',
       special: true,
       guest: 'jeanette',
+      winner: 'sp1-nils',
       sandwiches: [
-        { id: 'sp1-thomas',   name: null, creator: 'thomas' },
-        { id: 'sp1-leon',     name: null, creator: 'leon' },
-        { id: 'sp1-nils',     name: null, creator: 'nils' },
-        { id: 'sp1-jeanette', name: null, creator: 'jeanette' },
+        { id: 'sp1-thomas',   name: null,            creator: 'thomas' },
+        { id: 'sp1-leon',     name: null,            creator: 'leon' },
+        { id: 'sp1-nils',     name: 'Tuna Sandwich', creator: 'nils' },
+        { id: 'sp1-jeanette', name: null,            creator: 'jeanette' },
+      ],
+    },
+    {
+      id: 'ed2',
+      edition: '2026',
+      title: 'Sandwichabend 2026',
+      winner: 'ed2-thomas',
+      sandwiches: [
+        { id: 'ed2-thomas', name: 'Taco Sandwich', creator: 'thomas' },
+        { id: 'ed2-leon',   name: null,            creator: 'leon' },
+        { id: 'ed2-nils',   name: null,            creator: 'nils' },
       ],
     },
   ],

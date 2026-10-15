@@ -991,3 +991,44 @@ img { display: block; max-width: 100%; }
 /* Detail view without a photo: keep clear of the close button */
 .detail__body--no-photo { padding-top: 26px; }
 .detail__body--no-photo .detail__head { padding-right: 52px; }
+
+/* Hall of Shame header with the SpongeBob "disgusting" loop */
+.shame-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.shame-warning b { color: var(--diner-cheddar); }
+.shame-gif {
+  flex-shrink: 0;
+  width: 180px;
+  padding: 6px 6px 8px;
+  background: var(--diner-card);
+  border: var(--border);
+  box-shadow: 4px 4px 0 var(--diner-ketchup);
+  transform: rotate(3deg);
+  transition: transform 0.25s var(--spring);
+}
+.shame-gif:hover { transform: rotate(0deg) scale(1.06); }
+.shame-gif video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 358 / 282;
+  object-fit: cover;
+  border: var(--border);
+  background: var(--diner-black);
+}
+@media (max-width: 560px) {
+  .shame-head { flex-direction: column; align-items: flex-start; }
+  .shame-gif { width: 150px; }
+}
+
+/* Glyphs the pixel font doesn't have (∞) — body font, sized to match */
+.pixel-sym {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.9em;
+  line-height: 0;
+  vertical-align: -0.12em;
+}
