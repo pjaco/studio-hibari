@@ -105,7 +105,7 @@ window.SANDWICH_DATA = {
       sandwiches: [
         { id: 'ed2-thomas', name: 'Taco Sandwich',              creator: 'thomas', score: 8.7, favoriteVotes: 2, description: 'Taco Meat (Hackfleisch), dazu eine Salsa zum Dippen.' },
         { id: 'ed2-leon',   name: 'Klassiker Advanced',         creator: 'leon',   score: 7,   description: 'Kochschinken, Ketchup, Käse und Gurken.' },
-        { id: 'ed2-nils',   name: 'Black Garlic Turkey (BGT)',  creator: 'nils',   score: 8.7, favoriteVotes: 1 },
+        { id: 'ed2-nils',   name: 'Black Garlic Turkey (BGT)',  creator: 'nils',   score: 8.7, favoriteVotes: 1, description: 'Angebratene Putenbrust mit Black Garlic Sauce.' },
       ],
     },
   ],
