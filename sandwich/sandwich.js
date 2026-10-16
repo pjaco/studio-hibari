@@ -157,6 +157,54 @@
       });
     },
 
+    // Metal clank: a short, detuned low hit plus a noise burst
+    clank() {
+      if (!this.on || !this.ctx) return;
+      const ctx = this.ctx, t = ctx.currentTime;
+      [[180, 'square'], [263, 'triangle'], [417, 'square']].forEach(([freq, type]) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.6, t + 0.35);
+        g.gain.setValueAtTime(0.12, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+        osc.connect(g).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.42);
+      });
+      const len = Math.floor(ctx.sampleRate * 0.12);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const src = ctx.createBufferSource(), g = ctx.createGain();
+      src.buffer = buf;
+      g.gain.value = 0.25;
+      src.connect(g).connect(ctx.destination);
+      src.start(t);
+    },
+
+    // Wah-wah-wah-waaah, for clicking a trophy that's already ruined
+    sadTrombone() {
+      if (!this.on || !this.ctx) return;
+      const ctx = this.ctx, t0 = ctx.currentTime + 0.02;
+      [[311.13, 0, 0.3], [293.66, 0.32, 0.3], [277.18, 0.64, 0.3], [261.63, 0.96, 0.8]].forEach(([freq, at, dur]) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        const t = t0 + at;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, t);
+        if (dur > 0.5) {   // the last note droops
+          osc.frequency.linearRampToValueAtTime(freq * 0.94, t + dur);
+        }
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.07, t + 0.03);
+        g.gain.setValueAtTime(0.07, t + dur - 0.06);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.connect(g).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
+      });
+    },
+
     // Tiny blip so switching on is audible
     blip() {
       if (!this.ctx) return;
@@ -279,11 +327,45 @@
       ${body}`;
 
     const trophy = $('#trophy');
-    trophy.addEventListener('click', () => {
-      sound.fanfare();
-      trophy.classList.remove('is-cheering');
+    const hint   = $('.champion__hint');
+
+    // Easter egg: click it 67 times and it's dented — for good (per browser)
+    const DENT_AT = 67;
+    const warnings = { 30: 'Nicht so fest …', 45: 'Der ist nicht aus Gold.', 55: 'Es knackt schon.', 63: 'Letzte Warnung!' };
+    let clicks = 0;
+    let dented = false;
+    try { dented = localStorage.getItem('sandwichTrophyDented') === '1'; } catch (e) {}
+
+    const replay = cls => {
+      trophy.classList.remove(cls);
       void trophy.offsetWidth;   // restart the animation
-      trophy.classList.add('is-cheering');
+      trophy.classList.add(cls);
+    };
+    const showDented = () => {
+      trophy.classList.add('is-dented');
+      trophy.setAttribute('aria-label', 'Zerdellter Pokal');
+      hint.textContent = 'Glückwunsch, du hast den Pokal zerdellt.';
+    };
+    if (dented) showDented();
+
+    trophy.addEventListener('click', () => {
+      if (dented) {
+        sound.sadTrombone();
+        replay('is-wobbling');
+        return;
+      }
+      clicks++;
+      if (clicks >= DENT_AT) {
+        dented = true;
+        try { localStorage.setItem('sandwichTrophyDented', '1'); } catch (e) {}
+        sound.clank();
+        replay('is-denting');
+        showDented();
+        return;
+      }
+      if (warnings[clicks]) hint.textContent = warnings[clicks];
+      sound.fanfare();
+      replay('is-cheering');
     });
   }
 

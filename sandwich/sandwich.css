@@ -343,6 +343,29 @@ img { display: block; max-width: 100%; }
 .champion__trophy:hover { transform: scale(1.15) rotate(-6deg); }
 .champion__trophy:active { transform: scale(0.95); }
 .champion__trophy.is-cheering { animation: cheer 0.7s var(--spring); }
+
+/* Easter egg: dented after 67 clicks — squashed, bent, crumpled (SVG filter #dent) */
+.champion__trophy.is-dented,
+.champion__trophy.is-dented:hover,
+.champion__trophy.is-dented:active {
+  transform: rotate(-14deg) skew(12deg, -5deg) scale(0.95, 0.72);
+  filter: url(#dent) saturate(0.55) brightness(0.85);
+  animation: none;
+}
+.champion__trophy.is-dented.is-denting { animation: dent-hit 0.5s ease-out; }
+.champion__trophy.is-dented.is-wobbling { animation: dent-wobble 0.5s ease-in-out; }
+@keyframes dent-hit {
+  0%   { transform: scale(1.2) rotate(0); }
+  25%  { transform: scale(1.1, 0.55) rotate(8deg); }
+  50%  { transform: translateX(-6px) rotate(-18deg) skew(14deg, -6deg) scale(0.95, 0.7); }
+  75%  { transform: translateX(4px) rotate(-12deg) skew(12deg, -5deg) scale(0.95, 0.74); }
+  100% { transform: rotate(-14deg) skew(12deg, -5deg) scale(0.95, 0.72); }
+}
+@keyframes dent-wobble {
+  0%, 100% { transform: rotate(-14deg) skew(12deg, -5deg) scale(0.95, 0.72); }
+  30%      { transform: rotate(-20deg) skew(12deg, -5deg) scale(0.95, 0.72); }
+  65%      { transform: rotate(-9deg) skew(12deg, -5deg) scale(0.95, 0.72); }
+}
 .champion__hint {
   font-family: var(--font-pixel);
   font-size: 0.5rem;
