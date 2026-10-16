@@ -103,7 +103,7 @@ window.SANDWICH_DATA = {
       title: 'Sandwichabend 2025',
       // No explicit winner: Taco Sandwich and BGT tie on 8.7, the favourite votes decide
       sandwiches: [
-        { id: 'ed2-thomas', name: 'Taco Sandwich',              creator: 'thomas', score: 8.7, favoriteVotes: 2 },
+        { id: 'ed2-thomas', name: 'Taco Sandwich',              creator: 'thomas', score: 8.7, favoriteVotes: 2, description: 'Taco Meat (Hackfleisch), dazu eine Salsa zum Dippen.' },
         { id: 'ed2-leon',   name: 'Klassiker Advanced',         creator: 'leon',   score: 7,   description: 'Kochschinken, Ketchup, Käse und Gurken.' },
         { id: 'ed2-nils',   name: 'Black Garlic Turkey (BGT)',  creator: 'nils',   score: 8.7, favoriteVotes: 1 },
       ],
