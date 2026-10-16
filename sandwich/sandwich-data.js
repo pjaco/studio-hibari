@@ -16,7 +16,9 @@
      · name: '…' (null = "Name folgt")   · creator: <personId>   (required)
      · cube: 'Sandwich' | 'Toast' | 'Taco' | 'Sushi' | 'Quiche' | 'Calzone' | 'Salad' | 'Cake'
      · description: '…'                  · photo: '/images/sandwich/…jpg'
-     · scores: { <judgeId>: 1–10 }       → overall = average, decides the winner
+     · score: 8.7                        → final score (if only the total is known)
+     · scores: { <judgeId>: 1–10 }       → overall = average (used when there's no score)
+     · favoriteVotes: 2                  → favourite-sandwich votes, break a tie on score
      · stats: { integrity, sauce, crunch, heart, madness } 1–10 → radar chart
      · disaster: '…'                     → shown in the Hall of Shame
    ===================================================== */
@@ -60,6 +62,12 @@ window.SANDWICH_DATA = {
       since: 2025,
       reason: 'Nils hat 2023 und 2024 beide Male mit seinem Tuna Sandwich gewonnen.',
     },
+    {
+      title: 'Die Lieblingssandwich-Regel',
+      text: 'Haben mehrere Sandwiches dieselbe Punktzahl, gewinnt das Sandwich mit den meisten Stimmen als Lieblingssandwich.',
+      since: 2025,
+      reason: '2025 lagen Taco Sandwich und BGT gleichauf bei 8,7 Punkten. Das Taco Sandwich bekam 2 Lieblings-Votes, das BGT 1.',
+    },
   ],
 
   // Oldest first. TODO: the missing sandwich names (and anything else you remember).
@@ -93,11 +101,11 @@ window.SANDWICH_DATA = {
       id: 'ed2',
       edition: '2025',
       title: 'Sandwichabend 2025',
-      winner: 'ed2-thomas',
+      // No explicit winner: Taco Sandwich and BGT tie on 8.7, the favourite votes decide
       sandwiches: [
-        { id: 'ed2-thomas', name: 'Taco Sandwich',      creator: 'thomas' },
-        { id: 'ed2-leon',   name: 'Klassiker Sandwich', creator: 'leon', description: 'Kochschinken, Ketchup, Käse.' },
-        { id: 'ed2-nils',   name: null,                 creator: 'nils' },
+        { id: 'ed2-thomas', name: 'Taco Sandwich',              creator: 'thomas', score: 8.7, favoriteVotes: 2 },
+        { id: 'ed2-leon',   name: 'Klassiker Advanced',         creator: 'leon',   score: 7,   description: 'Kochschinken, Ketchup, Käse und Gurken.' },
+        { id: 'ed2-nils',   name: 'Black Garlic Turkey (BGT)',  creator: 'nils',   score: 8.7, favoriteVotes: 1 },
       ],
     },
   ],

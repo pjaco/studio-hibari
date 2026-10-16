@@ -29,11 +29,11 @@
   // Events in data order (oldest first)
   const events = [...DATA.events];
 
-  // Every sandwich with its evening; overall = average of judges (null if unrated)
+  // Every sandwich with its evening; overall = final score if given, else average of judges (null if unrated)
   const sandwiches = events.flatMap(ev => (ev.sandwiches || []).map(s => ({
     ...s,
     event: ev,
-    overall: avg(Object.values(s.scores || {})),
+    overall: typeof s.score === 'number' ? s.score : avg(Object.values(s.scores || {})),
   })));
   const sandwichById = Object.fromEntries(sandwiches.map(s => [s.id, s]));
   const rated = sandwiches.filter(s => s.overall !== null);
@@ -42,12 +42,15 @@
   // The description alone is shown on the card itself, so it doesn't need the detail view
   const hasDetails = s => !!(s.overall !== null || s.stats || s.cube || s.photo || s.disaster);
 
+  // Ranking order: higher score first; on a tie, more favourite votes wins (house rule)
+  const byRank = (a, b) => (b.overall ?? -1) - (a.overall ?? -1) || (b.favoriteVotes ?? 0) - (a.favoriteVotes ?? 0);
+
   // Winner: set explicitly, otherwise the best rated sandwich of the evening
   function winnerOf(ev) {
     if (ev.winner) return sandwichById[ev.winner] || null;
     return sandwiches
       .filter(s => s.event === ev && s.overall !== null)
-      .reduce((best, s) => (!best || s.overall > best.overall ? s : best), null);
+      .sort(byRank)[0] || null;
   }
 
   // Title defender = winner of the most recent evening that has one
@@ -66,7 +69,7 @@
   const hasRanking = leaderboard.some(r => r.wins > 0 || r.average !== null);
 
   // Fame = best rated; Shame = worst rated that aren't already famous
-  const byScore = [...rated].sort((a, b) => b.overall - a.overall);
+  const byScore = [...rated].sort(byRank);
   const fame  = byScore.slice(0, 3);
   const shame = [...byScore].reverse().filter(s => !fame.includes(s)).slice(0, 3);
 
@@ -194,6 +197,11 @@
     const cls = n >= 8 ? 'score--good' : n < 4.5 ? 'score--bad' : '';
     return `<span class="score ${cls}" aria-label="Gesamtnote ${fmt(n)} von 10">${fmt(n)}<small>/10</small></span>`;
   };
+
+  // Favourite-sandwich votes — the tie-breaker
+  const favVotes = s => s.favoriteVotes
+    ? `<span class="fav-votes">♥ ${s.favoriteVotes} ${s.favoriteVotes === 1 ? 'Lieblings-Vote' : 'Lieblings-Votes'}</span>`
+    : '';
 
   const cubeTag = cube => cube
     ? `<span class="cube-tag" title="Cube Rule: ${esc(DATA.cubeRule[cube] || '')}">${CUBE_EMOJI[cube] || '🍽️'} ${esc(cube)}</span>`
@@ -403,12 +411,13 @@
     const winner  = winnerOf(ev);
     // Winner first, then by score
     const entries = sandwiches.filter(s => s.event === ev)
-      .sort((a, b) => (b === winner) - (a === winner) || (b.overall ?? -1) - (a.overall ?? -1));
+      .sort((a, b) => (b === winner) - (a === winner) || byRank(a, b));
 
     const judgesOf = s => s.scores
       ? `<div class="judges" aria-label="Einzelwertungen">${Object.entries(s.scores)
           .map(([id, v]) => `<span class="judge">${esc(person(id).name)} <b>${fmt(v)}</b></span>`).join('')}</div>`
       : '';
+    const cardExtra = s => favVotes(s) + judgesOf(s);
 
     const facts = [
       ev.date     && `📅 <b>${fmtDate(ev.date)}</b>`,
@@ -468,7 +477,7 @@
             <div class="entries">
               ${entries.map(s => sandwichCard(s, {
                 flag: s === winner ? '<span class="winner-flag">★ Sieger</span>' : '',
-                extra: judgesOf(s),
+                extra: cardExtra(s),
               })).join('')}
             </div>
           </div>
@@ -590,6 +599,7 @@
           </div>
 
           ${s.description ? `<p class="detail__desc">${esc(s.description)}</p>` : ''}
+          ${favVotes(s)}
 
           ${s.cube ? `
           <div class="cube-box">

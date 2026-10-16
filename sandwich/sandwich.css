@@ -610,6 +610,8 @@ img { display: block; max-width: 100%; }
 
 .s-card__body { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; }
 .s-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+/* Without a photo the rank badge sits on the card body — keep the score clear of it */
+.podium__place .s-card:not(:has(.s-card__photo)) .s-card__top { padding-right: 34px; }
 .s-card__name { font-family: var(--font-display); font-size: 1.15rem; line-height: 1.15; }
 .s-card__by { font-size: 0.85rem; color: rgba(26, 26, 26, 0.72); }
 .s-card__tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -637,6 +639,17 @@ img { display: block; max-width: 100%; }
   transform: rotate(3deg);
 }
 .s-card__desc { margin-top: 10px; font-size: 0.88rem; color: rgba(26, 26, 26, 0.75); }
+.fav-votes {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 10px;
+  padding: 3px 9px;
+  border: var(--border);
+  border-radius: 999px;
+  background: #FFE9E9;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
 
 /* Drawn placeholder instead of a photo */
 .placeholder {
