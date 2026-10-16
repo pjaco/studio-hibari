@@ -56,48 +56,48 @@ window.SANDWICH_DATA = {
   rules: [
     {
       title: 'Kein Sandwich doppelt',
-      text: 'Jedes Sandwich darf nur einmal antreten. Wer schon mit einem Sandwich angetreten ist, muss sich etwas Neues einfallen lassen.',
-      since: 2026,
-      reason: 'Nils hat 2024 und 2025 beide Male mit seinem Tuna-Sandwich gewonnen.',
+      text: 'Niemand darf zweimal mit demselben Sandwich antreten. Wer schon mit einem Sandwich angetreten ist, muss sich etwas Neues einfallen lassen.',
+      since: 2025,
+      reason: 'Nils hat 2023 und 2024 beide Male mit seinem Tuna Sandwich gewonnen.',
     },
   ],
 
-  // Oldest first. Known: the winners. TODO: the other sandwich names (and anything else you remember).
+  // Oldest first. TODO: the missing sandwich names (and anything else you remember).
   events: [
     {
       id: 'ed1',
-      edition: '2024',
-      title: 'Sandwichabend 2024',
+      edition: '2023',
+      title: 'Sandwichabend 2023',
       winner: 'ed1-nils',
       sandwiches: [
         { id: 'ed1-thomas', name: null,            creator: 'thomas' },
         { id: 'ed1-leon',   name: null,            creator: 'leon' },
-        { id: 'ed1-nils',   name: 'Tuna-Sandwich', creator: 'nils' },
+        { id: 'ed1-nils',   name: 'Tuna Sandwich', creator: 'nils' },
       ],
     },
     {
       id: 'spezial1',
-      edition: '2025 · Gast-Edition',
-      title: 'Sandwichabend 2025 · Gast-Edition',
+      edition: '2024 · Gast-Edition',
+      title: 'Sandwichabend 2024 · Gast-Edition',
       special: true,
       guest: 'jeanette',
       winner: 'sp1-nils',
       sandwiches: [
-        { id: 'sp1-thomas',   name: null,            creator: 'thomas' },
-        { id: 'sp1-leon',     name: null,            creator: 'leon' },
-        { id: 'sp1-nils',     name: 'Tuna Sandwich', creator: 'nils' },
-        { id: 'sp1-jeanette', name: null,            creator: 'jeanette' },
+        { id: 'sp1-thomas',   name: 'Klassiker Sandwich',      creator: 'thomas',   description: 'Kochschinken, Ketchup, Käse.' },
+        { id: 'sp1-leon',     name: null,                      creator: 'leon' },
+        { id: 'sp1-nils',     name: 'Tuna Sandwich',           creator: 'nils' },
+        { id: 'sp1-jeanette', name: 'Tomate-Mozzarella-Pesto', creator: 'jeanette', description: 'Tomate, Mozzarella, Pesto.' },
       ],
     },
     {
       id: 'ed2',
-      edition: '2026',
-      title: 'Sandwichabend 2026',
+      edition: '2025',
+      title: 'Sandwichabend 2025',
       winner: 'ed2-thomas',
       sandwiches: [
-        { id: 'ed2-thomas', name: 'Taco Sandwich', creator: 'thomas' },
-        { id: 'ed2-leon',   name: null,            creator: 'leon' },
-        { id: 'ed2-nils',   name: null,            creator: 'nils' },
+        { id: 'ed2-thomas', name: 'Taco Sandwich',      creator: 'thomas' },
+        { id: 'ed2-leon',   name: 'Klassiker Sandwich', creator: 'leon', description: 'Kochschinken, Ketchup, Käse.' },
+        { id: 'ed2-nils',   name: null,                 creator: 'nils' },
       ],
     },
   ],

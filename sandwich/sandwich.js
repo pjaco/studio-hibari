@@ -39,7 +39,8 @@
   const rated = sandwiches.filter(s => s.overall !== null);
 
   // Does a sandwich have anything worth a detail view?
-  const hasDetails = s => !!(s.overall !== null || s.stats || s.description || s.cube || s.photo || s.disaster);
+  // The description alone is shown on the card itself, so it doesn't need the detail view
+  const hasDetails = s => !!(s.overall !== null || s.stats || s.cube || s.photo || s.disaster);
 
   // Winner: set explicitly, otherwise the best rated sandwich of the evening
   function winnerOf(ev) {
@@ -226,6 +227,7 @@
             </div>
             ${scoreBadge(s.overall)}
           </div>
+          ${s.description ? `<p class="s-card__desc">${esc(s.description)}</p>` : ''}
           ${s.cube ? `<div class="s-card__tags">${cubeTag(s.cube)}</div>` : ''}
           ${extra}
           ${clickable ? '<span class="s-card__more">Details ansehen →</span>' : ''}

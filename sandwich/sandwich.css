@@ -629,6 +629,14 @@ img { display: block; max-width: 100%; }
   transform: rotate(-4deg);
   box-shadow: 2px 2px 0 var(--diner-black);
 }
+/* No photo to sit on: pin the flag to the top edge, clear of avatar and name */
+.s-card:not(:has(.s-card__photo)) > .winner-flag {
+  top: -12px;
+  left: auto;
+  right: 14px;
+  transform: rotate(3deg);
+}
+.s-card__desc { margin-top: 10px; font-size: 0.88rem; color: rgba(26, 26, 26, 0.75); }
 
 /* Drawn placeholder instead of a photo */
 .placeholder {
